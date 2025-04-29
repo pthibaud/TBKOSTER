@@ -217,7 +217,7 @@ contains
         call rho2nm(rho, n, m_cart)
         obj%w_band_spin(ih,ik,0,2:4) = obj%w_band_spin(ih,ik,0,2:4)+m_cart
      end do
-       m_cart=obj%w_band_spin(jmat,ik,0,2:4)
+       m_cart=obj%w_band_spin(ih,ik,0,2:4)
        obj%w_band_spin(ih,ik,0,1) = norm2(m_cart)
    end do
 
