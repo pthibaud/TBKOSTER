@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-MAINTAINER Pascal Thibaudeau <pthibaud@users.noreply.github.com>
+LABEL maintainer = Pascal Thibaudeau <pthibaud@users.noreply.github.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=Europe/Paris
