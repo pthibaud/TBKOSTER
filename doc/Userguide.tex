@@ -283,7 +283,7 @@ $ source .venv/bin/activate
 $ pip install fypp
 $ git clone https://github.com/fortran-lang/stdlib
 $ cd stdlib
-$ cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local -Bbuild .
+$ cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local -DFIND_BLAS=off -Bbuild .
 $ cmake --build build --parallel 4
 $ cmake --install build 
 \end{lstlisting}
