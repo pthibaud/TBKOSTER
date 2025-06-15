@@ -185,7 +185,7 @@ $ sudo apt install cmake gfortran clang doxygen graphviz libopenblas-dev libomp-
 \end{lstlisting}
 Ensure cmake is updated to version 3.13 or higher.
 To build the code, navigate to the root of the TBKOSTER directory:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
   $ cd TBKOSTER
   $ cmake -B build
   $ cmake --build build
@@ -199,23 +199,23 @@ $ BLA_VENDOR=Intel10_64lp_seq FC=ifort cmake -B build
 Ensure the MKLROOT environment variable is set correctly.
 
 In order to get good numerical performance, you have to produce a Release version as:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,breaklines=true]
 $ cmake -DCMAKE_BUILD_TYPE=Release -B build
 \end{lstlisting}
 You can combine all these options.
 If you prefer to prepare an installation with a given installed Lapack library and gfortran, try:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,breaklines=true]
 $ BLA_VENDOR=OpenBLAS FC=gfortran cmake -B build
 \end{lstlisting}
 %%%%%%%%%%%%%%%%%%%%%%%
 \section{MacOS}
 Preferred method: On MacOS 10.11 and later, install cmake, lapack, and gfortran with llvm support using the \href{https://www.macports.org}{ports} subsystem:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ sudo port install cmake gcc libgcc gcc_select llvm-3.9 llvm_select lapack libomp
 \end{lstlisting}
 \href{https://brew.sh}{Brew} is also a working alternative.
 To build the code, navigate to the root of the TBKOSTER directory:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ cd TBKOSTER
 $ cmake -B build
 $ cmake --build build
@@ -225,13 +225,13 @@ For both Linux and MacOS platforms, you can invoke cmake with Release or Debug o
 $ cmake -DCMAKE_BUILD_TYPE=Release/Debug -B build
 \end{lstlisting}
 To access the OpenMP implementation, update your ports with the openmp package. You can easily change your settings with (assuming MacOS port is installed):
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ port select --summary
 $ port select --set llvm mp-llvm-3.9
 $ port select --set gcc mp-gcc6
 \end{lstlisting}
 To get good numerical performance, use the OpenBLAS library and produce a Release version as:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ port install openblas
 $ BLA_VENDOR=OpenBLAS cmake -DCMAKE_BUILD_TYPE=Release -B build
 \end{lstlisting}
@@ -257,7 +257,7 @@ $ pacman -S cmake
 \end{lstlisting}
 
 To build the code, open an MSYS MINGW 64-bit console. Navigate to the root of the TBKOSTER directory:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ cmake -G"MinGW Makefiles" -DCMAKE_SH="CMAKE_SH-NOTFOUND" -B build
 $ cd build && mingw32-make
 \end{lstlisting}
@@ -273,7 +273,7 @@ For Windows 10 release 1709 and higher, activate the optional Windows SubSystem 
 
 \section{Additional features}
 Experimental features are available in the dev branch of TBKOSTER. Follow these steps to install and compile the necessary dependencies:
-\begin{lstlisting}[language=bash,basicstyle=\small\ttfamily,frame=single]
+\begin{lstlisting}[language=bash,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ python3 -m venv .venv
 $ source .venv/bin/activate
 $ pip install fypp
@@ -285,7 +285,7 @@ $ cmake --install build
 \end{lstlisting}
 
 The fortran stdlib is installed in your \$HOME/.local folder. Return to the TBKOSTER directory, switch to the dev branch, and compile the code:
-\begin{lstlisting}[language=bash,basicstyle=\small\ttfamily,frame=single]
+\begin{lstlisting}[language=bash,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ cd TBKOSTER
 $ git checkout dev
 $ rm -fr build
@@ -396,31 +396,30 @@ p{0.3\textwidth} @{\hspace{0.025\textwidth}} p{0.65\textwidth} @{} }
 & & \\
 \hline
 \hline
-namelist &Variable     &Description\\
+namelist & Variable & Description \\
 \hline 
-\&calculation &  &\\
+\&calculation & & \\
 \hline
- & \verb+pre_processing+  (char)    & type of pre-processing calculation: 
+& \verb+pre_processing+ (char) & Type of pre-processing calculation:
                             \begin{liste} 
-                                       \item 'txt2xyz'$\ra$ write geometry in xyz format, 
+                              \item 'txt2xyz'$\ra$ write geometry in xyz format, 
                             \end{liste} \\
-& \verb+pre_processing_dir+  (char)    & directory for saving pre-processing calculation: 
+& \verb+pre_processing_dir+ (char) & Directory for saving pre-processing calculation:
                             \begin{liste} 
-                                       \item 'txt2xyz'$\ra$ default value, 
+                              \item 'txt2xyz'$\ra$ default value, 
                             \end{liste} \\
-
- & \verb+processing+  (char)    & type of processing calculation: 
+& \verb+processing+ (char) & Type of processing calculation:
                             \begin{liste} 
-                                       \item 'scf'$\ra$ \textbf{self-consistent}, 
-                                       \item 'md'$\ra$ molecular-dynamics. 
-                                       \item 'sd'$\ra$ spin-dynamics. 
+    \item 'scf' $\ra$ \textbf{Self-consistent}.
+    \item 'md' $\ra$ Molecular-dynamics.
+    \item 'sd' $\ra$ Spin-dynamics.
                             \end{liste} \\
- & \verb+post_processing+  (char)    & type of post-processing calculation (always preceded by a scf calculation): 
+& \verb+post_processing+ (char) & Type of post-processing calculation (always preceded by a scf calculation):
                             \begin{liste} 
-                                       \item 'band'$\ra$ band structure calculation, 
-                                       \item 'dos'$\ra$ density of states calculation. 
-                                        \item 'forces'$\ra$ forces calculation. 
-                                       \item 'mft'$\ra$ magnetic force theorem. 
+    \item 'band' $\ra$ Band structure calculation.
+    \item 'dos' $\ra$ Density of states calculation.
+    \item 'forces' $\ra$ Forces calculation.
+    \item 'mft' $\ra$ Magnetic force theorem.
                             \end{liste} \\
 \hline
 \&units &  &   \\
