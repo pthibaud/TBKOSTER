@@ -282,11 +282,11 @@ contains
     end subroutine integrate_nve
 
     !> Integration with the Langevin Dynamcis to produce an NVT ensemble
-    subroutine integrate_nvt(obj,unit)
-        class(molecular_dynamics),intent(inout) :: obj
-        integer,intent(in) :: unit
+    subroutine integrate_nvt(obj, unit)
+        class(molecular_dynamics), intent(inout) :: obj
+        integer, intent(in) :: unit
 
-        integer :: ia,ia1,it ! atom number and iteration step
+        integer :: ia,ia1,it ! atom number, atomic iterator and iteration step
         real(rp) :: t, ktemp ! time and kinetic temperature
         integer :: na ! number of atoms
         real(rp), dimension(:), allocatable :: mass ! atomic masses
@@ -299,7 +299,7 @@ contains
         ! implementation follows from : 
         ! A simple and effective Verlet-type algorithm for simulating Langevin dynamics 
         ! https://www.tandfonline.com/doi/abs/10.1080/00268976.2012.760055
- ! Write the initial magnetizations of the atoms
+        ! Write the initial magnetizations of the atoms
         call obj%f%a_tb%write_txt_formatted(file='md/out_atom_tb_0.txt')
 
         na = obj%f%a_tb%na
@@ -314,16 +314,15 @@ contains
         it = 1
         t = obj%t_i
 
-        ! do a SCF calculation do get the forces for current positions
+        ! Perform SCF calculation to get the forces for current positions
         if(it==1) call obj%f%scf%q%calculate_charge_in()
         call obj%f%scf%run(unit)
         call obj%f%calculate_forces()
 
-        ! get the atomic masses once and put them in a corrresponding array
+        ! Get the atomic masses once and store them in an array
         allocate(mass(na))
-        do ia=1,na
-            mass(ia) = obj%f%e_tb%mass(obj%f%a_tb%ia2ie(ia)) * &
-                   obj%f%u%convert_mass('to','hau')
+        do ia = 1, na
+            mass(ia) = obj%f%e_tb%mass(obj%f%a_tb%ia2ie(ia)) * obj%f%u%convert_mass('to', 'hau')
         end do 
 
         ! Time loop
@@ -348,13 +347,10 @@ contains
             do ia=1,na
                 old_forces(:)    = obj%f%f_at(ia,:)
                 old_positions(:) = obj%f%a_tb%r(ia,:)
-                !print *, "r(",ia,")=",old_positions(:) 
-                !print *, "p(",ia,")=",obj%f%a_tb%p(ia,:)
-                !print *, "f_old(",ia,")=",old_forces(:)
-        
+                
                 b = 1.0_rp/(1.0_rp+(0.5*gamma*dt/mass(ia)))
 
-                ! get a random thermal field
+                ! Compute a random thermal field
                 force_rand(1) = D*(-1.0_rp+2.0_rp*rand())
                 force_rand(2) = D*(-1.0_rp+2.0_rp*rand())
                 force_rand(3) = D*(-1.0_rp+2.0_rp*rand())
@@ -364,18 +360,6 @@ contains
                                    (b*obj%f%a_tb%p(ia,:)*dt/mass(ia))+&
                                    (b*0.5_rp*old_forces(:)*dt*dt/mass(ia))+&
                                    0.5_rp*b*dt*dt*force_rand(:)/mass(ia)
-                
-                ! do a SCF calculation do get the new forces
-                !do ia1=1,na
-                !    obj%f%f_at(ia1,:)=0.0_rp
-                !end do
-!                call obj%f%a_tb%calculate_neighbours(obj%f%e_tb%r_c_max)
-!                call obj%f%scf%q%calculate_charge_in()
-!                call obj%f%scf%h%calculate_h_r()
-!                call obj%f%scf%h%calculate_s_r()
-!                call obj%f%scf%run(unit)
-!                call obj%f%calculate_forces()
-                !print *, "f_new(",ia,")=",obj%f%f_at(ia,:)
 
                 ! update the impulsions
                 obj%f%a_tb%p(ia,:)=obj%f%a_tb%p(ia,:)+&
@@ -384,22 +368,21 @@ contains
                                    force_rand(:)*dt
                 
             end do
-                do ia1=1,na
-                    obj%f%f_at(ia1,:)=0.0_rp
-                end do
+            do ia1=1,na
+                obj%f%f_at(ia1,:)=0.0_rp
+            end do
             ! Update iteration step and time counter
             call obj%f%a_tb%calculate_neighbours(obj%f%e_tb%r_c_max,obj%f%e_tb%tb_type)
             call obj%f%scf%h%calculate_h_r()
             call obj%f%scf%h%calculate_s_r()
             call obj%f%scf%run(unit)
             call obj%f%calculate_forces()    
-! Write the instantaneous positions of the atoms
+            ! Write the instantaneous positions of the atoms in a file
             call obj%f%scf%update_m()  
             call obj%f%a_tb%write_txt_formatted(file='md/out_atom_tb_' // int2str(it) &
-       // '.txt')
+            // '.txt')
             it = it + 1
             t = t + obj%dt
-            !print *,"====="
         end do
         deallocate(mass)    
     end subroutine integrate_nvt
