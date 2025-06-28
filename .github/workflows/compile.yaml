@@ -10,6 +10,12 @@ jobs:
       - run: echo "The workflow is now ready to test your code on the runner."
       - name: 'Upgrade packages'
         run: sudo apt update && sudo apt install -y libopenblas-dev gettext
+      - name: 'Activate virtualenv'
+        run: |
+          . .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+      - name: 'Setup fypp preprocessor'
+        run: pip3 install fypp
       - name: 'Prepare environment'
         run: cmake -DCMAKE_BUILD_TYPE=Release -B build .
       - name: 'Make binaries'
