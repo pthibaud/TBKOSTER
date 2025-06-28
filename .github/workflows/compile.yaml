@@ -19,7 +19,7 @@ jobs:
           cd stdlib
           cmake -DCMAKE_BUILD_TYPE=Release -Bbuild
           cmake --build build --parallel
-          cmake --install build 
+          sudo cmake --install build 
       - name: 'Check out repository code'
         uses: actions/checkout@v4
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
