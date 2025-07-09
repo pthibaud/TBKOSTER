@@ -139,6 +139,8 @@ program bands
    case (4)
       nsl = 1
    end select
+   i_min=1
+   i_max=nh
    na_band = 0
    allocate (ia_band(0))
    read (unit_band_in, nml=band, iostat=iostatus)

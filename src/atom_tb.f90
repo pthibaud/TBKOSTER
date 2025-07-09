@@ -243,6 +243,7 @@ contains
         end do
         close(unit=10)
     end select
+
   end function build_b_r
 
   ! Routine to calculate the derivative of the hopping matrix (d_B) 
@@ -725,7 +726,7 @@ contains
         end if
       end do
     end do
-    
+
   end function build_en_intra
 
   ! Function build_d_en_intra to be used on the molecular dynamics

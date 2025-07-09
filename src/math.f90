@@ -296,7 +296,7 @@ contains
     real(rp) :: det
 
     det = determinant(m1)
-    if (det >= epsilon) then
+    if (abs(det) >= epsilon) then
 
     m2(1,1) =  (m1(2,2) * m1(3,3) - m1(2,3) * m1(3,2)) / det;
     m2(1,2) = -(m1(1,2) * m1(3,3) - m1(1,3) * m1(3,2)) / det;
