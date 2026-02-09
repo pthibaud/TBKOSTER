@@ -175,6 +175,7 @@ contains
      .and. processing /= 'md' &
      .and. processing /= 'mmd' &
      .and. processing /= 'scf' &
+     .and. processing /= 'nscf' &    
      .and. processing /= 'sd') then
       write(error_unit,*) 'calculation%check_processing(): &
        &calculation%processing must be one of: ''none'', ''md'', ''mmd'', &

@@ -44,7 +44,7 @@ program bands
    integer, parameter :: unit_band_in = 13
    integer, parameter :: unit_band_out = 14
    integer, parameter :: unit_log_out = 15
-   integer :: iostatus, nx, i_min,i_max,ih, nh, ns, nsl, no_max, n_band,na_band
+   integer :: iostatus, nx, ih_min,ih_max,ih, nh, ns, nsl, no_max, n_band,na_band
    logical :: isopen, close_file
    character(len=*), parameter :: dir = 'band/'
    character(len=*), parameter :: file_band_in = 'in_band.txt'
@@ -56,8 +56,8 @@ program bands
    character(len=9) :: x_coord
    character(len=4) :: type, type_case
    character(len=80) :: line
-   character(len=11) :: proj
-   integer, dimension(:), allocatable :: i_band,ia_band, iband2io
+   character(len=20) :: proj
+   integer, dimension(:), allocatable :: ih_band,ia_band, iband2io
    real(rp), dimension(:, :, :), allocatable :: en_k
    real(rp), dimension(:), allocatable :: w
    real(rp), dimension(:, :), allocatable :: x
@@ -66,13 +66,14 @@ program bands
    real(rp), dimension(:, :, :, :, :), allocatable :: w_band_site
    real(rp), dimension(:, :, :, :), allocatable :: w_band_spin
    real(rp), dimension(:, :, :, :), allocatable :: w_band_orb
+   real(rp), dimension(:, :, :, :), allocatable :: band_velocity
    real(rp) :: en_min, en_max, en_f, Eref
    namelist /lattice/ v_factor, v, vrec
    namelist /mesh/ type
    namelist /mesh_out/ type, nx, x_coord, x, w
    namelist /hamiltonian_tb/ nh, ns
-   namelist /band/ proj, i_min,i_max,na_band, ia_band
-   namelist /band_out/ en_k, iband2io, w_band_site, w_band_spin, w_band_orb
+   namelist /band/ proj, Eref, ih_min,ih_max,na_band, ia_band
+   namelist /band_out/ en_k, iband2io, w_band_site, w_band_spin, w_band_orb, band_velocity
 
    ! inquire(unit=unit_energy_in,opened=isopen)
    ! if (isopen) then
@@ -139,19 +140,22 @@ program bands
    case (4)
       nsl = 1
    end select
-   i_min=1
-   i_max=nh
+   ih_min=1
+   ih_max=nh
    na_band = 0
+   Eref=0.0_rp
    allocate (ia_band(0))
    read (unit_band_in, nml=band, iostat=iostatus)
-   deallocate (ia_band)
-   allocate (ia_band(na_band))
-   rewind (unit_band_in)
-   read (unit_band_in, nml=band, iostat=iostatus)
-   n_band=i_max-i_min+1
-   allocate(i_band(n_band))
+   if(TRIM(proj).ne.'velocity') then ! if proj=all then we do not perform local analysis hence na_band=0..
+      deallocate (ia_band)
+      allocate (ia_band(na_band))
+      rewind (unit_band_in)
+      read (unit_band_in, nml=band, iostat=iostatus)
+   endif
+   n_band=ih_max-ih_min+1
+   allocate(ih_band(n_band))
    do ih=1,n_band
-    i_band(ih)=ih+i_min-1
+    ih_band(ih)=ih+ih_min-1
    end do
    close (unit_band_in)
 
@@ -170,21 +174,21 @@ program bands
       rewind (unit_band_out)
       allocate (w_band_site(nh, nx, na_band, no_max, nsl))
       read (unit_band_out, nml=band_out, iostat=iostatus)
-   elseif (TRIM(proj) == 'spin' .AND. na_band > 0) then
-      allocate (w_band_spin(0, 0, 0, 0))
-      read (unit_band_out, nml=band_out, iostat=iostatus)
-      deallocate (w_band_spin)
-      rewind (unit_band_out)
+   elseif (TRIM(proj) == 'spin' )then !.AND. na_band > 0) then
+      !allocate (w_band_spin(0, 0, 0, 0))
+      !read (unit_band_out, nml=band_out, iostat=iostatus)
+      !deallocate (w_band_spin)
+      !rewind (unit_band_out)
       allocate (w_band_spin(n_band, nx, 0:na_band, 4))
       read (unit_band_out, nml=band_out, iostat=iostatus)
-   elseif (TRIM(proj) == 'orbit' .AND. na_band > 0) then
+   elseif (TRIM(proj) == 'orbit') then
       allocate (w_band_orb(0, 0, 0, 0))
       read (unit_band_out, nml=band_out, iostat=iostatus)
       deallocate (w_band_orb)
       rewind (unit_band_out)
       allocate (w_band_orb(n_band, nx, 0:na_band, 4))
       read (unit_band_out, nml=band_out, iostat=iostatus)
-   elseif (TRIM(proj) == 'spin,orbit' .AND. na_band > 0) then
+   elseif (TRIM(proj) == 'spin,orbit' ) then
       allocate (w_band_spin(0, 0, 0, 0))
       allocate (w_band_orb(0, 0, 0, 0))
       read (unit_band_out, nml=band_out, iostat=iostatus)
@@ -194,8 +198,10 @@ program bands
       allocate (w_band_spin(n_band, nx, 0:na_band, 4))
       allocate (w_band_orb(n_band, nx, 0:na_band, 4))
       read (unit_band_out, nml=band_out, iostat=iostatus)
-   end if
-
+   elseif (TRIM(proj) == 'velocity') then
+         allocate (band_velocity(n_band, nx, nsl, 4))
+         read (unit_band_out, nml=band_out, iostat=iostatus)
+   endif
    close (unit_band_out)
    ! set the Fermi energy to zero
    call get_fermi_scf(en_f)
@@ -209,29 +215,32 @@ program bands
          call build_band_path_site_orb(x, en_k, w_band_site, iband2io, na_band, no_max, nh, nx, nsl)
       elseif (TRIM(proj) == 'spin') then
          close_file = .true.
-         call build_band_path_spinorb(close_file, x, en_k, w_band_spin, i_band, n_band, na_band, nh, nx)
+         call build_band_path_spinorb(close_file, x, en_k, w_band_spin, ih_band, n_band, na_band, nh, nx)
       elseif (TRIM(proj) == 'orbit') then
          close_file = .true.
-         call build_band_path_spinorb(close_file, x, en_k, w_band_orb,i_band, n_band, na_band, nh, nx)
+         call build_band_path_spinorb(close_file, x, en_k, w_band_orb,ih_band, n_band, na_band, nh, nx)
       elseif (TRIM(proj) == 'spin,orbit') then
-         call build_band_path_spinorb(close_file, x, en_k, w_band_spin,i_band, n_band, na_band, nh, nx)
+         call build_band_path_spinorb(close_file, x, en_k, w_band_spin,ih_band, n_band, na_band, nh, nx)
          close_file = .true.
-         call build_band_path_spinorb(close_file, x, en_k, w_band_orb,i_band, n_band, na_band, nh,  nx)
+         call build_band_path_spinorb(close_file, x, en_k, w_band_orb,ih_band, n_band, na_band, nh,  nx)
+      elseif (TRIM(proj) == 'velocity') then
+         call build_band_path_velocity( x, en_k, band_velocity,ih_band, n_band, nh,  nx,  nsl)
       end if
    case ('list')
       write (*, *) 'list'
       close_file = .false.
-      Eref = 0.0_rp
       if (TRIM(proj) == 'spin') then
          close_file = .true.
-         call build_vector_field(close_file, x, en_k, Eref, w_band_spin,i_band, n_band, na_band, nh, nx)
+         call build_vector_field(close_file, x, en_k, Eref, w_band_spin,ih_band, n_band, na_band, nh, nx)
       elseif (TRIM(proj) == 'orbit') then
          close_file = .true.
-         call build_vector_field(close_file, x, en_k, Eref, w_band_orb,i_band, n_band, na_band, nh, nx)
+         call build_vector_field(close_file, x, en_k, Eref, w_band_orb,ih_band, n_band, na_band, nh, nx)
       elseif (TRIM(proj) == 'spin,orbit') then
-         call build_vector_field(close_file, x, en_k, Eref, w_band_spin,i_band, n_band,  na_band, nh, nx)
+         call build_vector_field(close_file, x, en_k, Eref, w_band_spin,ih_band, n_band,  na_band, nh, nx)
          close_file = .true.
-         call build_vector_field(close_file, x, en_k, Eref, w_band_orb,i_band, n_band, na_band, nh, nx)
+         call build_vector_field(close_file, x, en_k, Eref, w_band_orb,ih_band, n_band, na_band, nh, nx)
+      elseif (TRIM(proj) == 'velocity') then
+         call build_velocity_field(x, en_k, Eref, band_velocity,ih_band, n_band, nh,  nx, ns, nsl)
       end if
    end select
 
@@ -319,12 +328,12 @@ contains
       close (unit_band)
    end subroutine build_band_path_site_orb
 
-   subroutine build_band_path_spinorb(close_file, x, en_k, w_band, i_band, n_band, na_band, nh, nx)
+   subroutine build_band_path_spinorb(close_file, x, en_k, w_band, ih_band, n_band, na_band, nh, nx)
       use precision_mod
       use string_mod
       implicit none
       integer, intent(in) :: na_band, n_band, nx, nh
-      integer, intent(in) :: i_band(n_band)
+      integer, intent(in) :: ih_band(n_band)
       real(rp), intent(in) :: x(nx, 3), en_k(nh, nx, 1)
       real(rp), intent(in) :: w_band(n_band, nx, 0:na_band, 4)
       logical :: isopen
@@ -354,12 +363,12 @@ contains
          sk = 0.0_rp
          fmt = trim('(6f12.7)')
          do ih = 1, n_band
-            write (unit_band, fmt) sk, en_k(i_band(ih), 1, 1), (w_band(ih, 1, ia_band, ii), ii=1, 4)
+            write (unit_band, fmt) sk, en_k(ih_band(ih), 1, 1), (w_band(ih, 1, ia_band, ii), ii=1, 4)
          end do
          do ix = 2, nx
             sk = sk + sqrt(sum((x(ix, :) - x(ix - 1, :))**2))
             do ih = 1, n_band
-               write (unit_band, fmt) sk, en_k(i_band(ih), ix, 1), (w_band(ih, ix, ia_band, ii), ii=1, 4)
+               write (unit_band, fmt) sk, en_k(ih_band(ih), ix, 1), (w_band(ih, ix, ia_band, ii), ii=1, 4)
             end do
          end do
       end do
@@ -369,17 +378,63 @@ contains
       if (close_file) close (unit_band)
    end subroutine build_band_path_spinorb
 
-   subroutine build_vector_field(close_file, x, en_k, Eref, w_band, i_band, n_band, na_band, nh, nx)
+   subroutine build_band_path_velocity(x, en_k, band_velocity,ih_band, n_band, nh,  nx, nsl)
+      use precision_mod
+      use string_mod
+      implicit none
+      integer, intent(in) :: n_band, nx, nh,  nsl
+      integer, intent(in) :: ih_band(n_band)
+      real(rp), intent(in) :: x(nx, 3), en_k(nh, nx, nsl)
+      real(rp), intent(in) :: band_velocity(n_band, nx, nsl, 4)
+      logical :: isopen
+      integer :: ih, ix, ii, isl
+      logical :: close_file
+      integer, parameter :: unit_band = 10
+      real(rp) :: sk
+      character(len=*), parameter :: dir = 'band/'
+      character(len=*), parameter :: file_band_velocity = 'band_velocity.dat'
+      character(len=80) :: fmt
+
+      inquire (unit=unit_band, opened=isopen)
+      if (.not. isopen) then
+         open (unit=unit_band, file=dir//file_band_velocity, action='write')
+      end if
+      write (unit_band, *) '@# k   band (ev)'
+      do isl = 1, nsl
+         if (isl > 1) then
+            write (unit_band, *)
+            write (unit_band, *)
+         end if
+          write (unit_band, *) '@# band velocity', isl
+         sk = 0.0_rp
+         fmt = trim('(6f12.7)')
+         do ih = 1, n_band
+            write (unit_band, fmt) sk, en_k(ih_band(ih), 1, isl), (band_velocity(ih, 1, isl, ii), ii=1, 4)
+         end do
+         do ix = 2, nx
+            sk = sk + sqrt(sum((x(ix, :) - x(ix - 1, :))**2))
+            do ih = 1, n_band
+               write (unit_band, fmt) sk, en_k(ih_band(ih), ix, isl), (band_velocity(ih, ix, isl, ii), ii=1, 4)
+            end do
+         end do
+      end do
+      !    write (unit_band, *) '@# k   ef=0'
+      !    write (unit_band, '(2f8.3)') 0.0_rp, 0.0_rp
+      !    write (unit_band, '(2f8.3)') sk, 0.0_rp
+       close (unit_band)
+   end subroutine build_band_path_velocity
+
+   subroutine build_vector_field(close_file, x, en_k, Eref, w_band, ih_band, n_band, na_band, nh, nx)
       use precision_mod
       use string_mod
       implicit none
       integer, intent(in) :: n_band, na_band, nh, nx
-      integer, intent(in) :: i_band(n_band)
+      integer, intent(in) :: ih_band(n_band)
       real(rp), intent(in) :: x(nx, 3), en_k(nh, nx, 1)
       real(rp), intent(in) :: w_band(n_band, nx, 0:na_band, 4)
       real(rp), intent(in) :: Eref
       logical :: isopen
-      integer :: ih, ix, ii, ia_band
+      integer :: ih, isl, ix, ii, ia_band
       logical :: close_file
       integer, parameter :: unit_vf = 10, unit_fermi = 11
       real(rp) :: average0, average(4)
@@ -393,6 +448,12 @@ contains
          open (unit=unit_fermi, file=dir//file_fermi, action='write')
       end if
 
+       inquire (unit=unit_vf, opened=isopen)
+      if (.not. isopen) then
+         open (unit=unit_vf, file=dir//file_vector_field, action='write')
+      end if
+
+      write (unit_fermi, *) '@# fermi surface'
       fmt = trim('(4f12.7)')
       do ix = 1, nx
          average0 = 0.0_rp
@@ -403,17 +464,80 @@ contains
       end do
 
       if (close_file) close (unit_fermi)
+      write (unit_vf, *) '@# vector field'
 
+      fmt = trim('(7f12.7)')
+
+      do ix = 1, nx
+         average(1:4) = 0.0_rp
+         do ih = 1, n_band
+            average(2:4) = average(2:4) + w_band(ih, ix, 0, 2:4)*delta_function(en_k(ih_band(ih), ix, 1) - Eref)
+         end do
+         average(1) = norm2(average(2:4))
+         write (unit_vf, fmt) x(ix, 1), x(ix, 2), x(ix, 3), (average(ii), ii=1, 4)
+      end do
+
+      !    write (unit_band, *) '@# k   ef=0'
+      !    write (unit_band, '(2f8.3)') 0.0_rp, 0.0_rp
+      !    write (unit_band, '(2f8.3)') sk, 0.0_rp
+      if (close_file) close (unit_vf)
+   end subroutine build_vector_field
+
+    subroutine build_velocity_field(x, en_k, Eref,band_velocity,ih_band, n_band, nh,  nx, ns, nsl)
+      use precision_mod
+      use string_mod
+      implicit none
+      integer, intent(in) :: n_band, nsl, nh, nx,ns
+      integer, intent(in) :: ih_band(n_band)
+      real(rp), intent(in) :: x(nx, 3), en_k(nh, nx, nsl)
+      real(rp), intent(in) :: band_velocity(n_band, nx, nsl, 4)
+      real(rp), intent(in) :: Eref
+      logical :: isopen
+      integer :: ih, isl, ix, ii, ia_band
+      logical :: close_file
+      integer, parameter :: unit_vf = 10, unit_fermi = 11
+      real(rp) :: average0, average(4)
+      character(len=*), parameter :: dir = 'band/'
+      character(len=*), parameter :: file_fermi = 'fermi.dat'
+      character(len=*), parameter :: file_velocity_field = 'vector_field.dat'
+      character(len=80) :: fmt
+
+      inquire (unit=unit_fermi, opened=isopen)
+      if (.not. isopen) then
+         open (unit=unit_fermi, file=dir//file_fermi, action='write')
+      end if
       inquire (unit=unit_vf, opened=isopen)
       if (.not. isopen) then
-         open (unit=unit_vf, file=dir//file_vector_field, action='write')
+         open (unit=unit_vf, file=dir//file_velocity_field, action='write')
       end if
 
+   do isl = 1, nsl
+         if (isl > 1) then
+            write (unit_fermi, *)
+            write (unit_fermi, *)
+         end if
+          write (unit_fermi, *) '@# band velocity', isl
+        if (isl > 1) then
+            write (unit_vf, *)
+            write (unit_vf, *)
+         end if
+          write (unit_vf, *) '@# band velocity', isl
+
+
+      fmt = trim('(4f12.7)')
+      do ix = 1, nx
+         average0 = 0.0_rp
+         do ih = 1, nh
+            average0 = average0 + delta_function(en_k(ih, ix, isl) - Eref)
+         end do
+         write (unit_fermi, fmt) x(ix, 1), x(ix, 2), x(ix, 3), average0
+      end do
+   
       fmt = trim('(7f12.7)')
       do ix = 1, nx
          average(1:4) = 0.0_rp
          do ih = 1, n_band
-            average(2:4) = average(2:4) + w_band(ih, ix, 0, 2:4)*delta_function(en_k(i_band(ih), ix, 1) - Eref)
+            average(2:4) = average(2:4) + band_velocity(ih, ix, isl, 2:4)*delta_function(en_k(ih_band(ih), ix, isl) - Eref)
          end do
          average(1) = norm2(average(2:4))
          write (unit_vf, fmt) x(ix, 1), x(ix, 2), x(ix, 3), (average(ii), ii=1, 4)
@@ -421,8 +545,10 @@ contains
       !    write (unit_band, *) '@# k   ef=0'
       !    write (unit_band, '(2f8.3)') 0.0_rp, 0.0_rp
       !    write (unit_band, '(2f8.3)') sk, 0.0_rp
-      if (close_file) close (unit_vf)
-   end subroutine build_vector_field
+   end do
+     close (unit_fermi)
+     close (unit_vf)
+   end subroutine build_velocity_field
 
    subroutine get_fermi_scf(en_f)
       use precision_mod
@@ -448,7 +574,7 @@ contains
     ! output: the value of the function
     ! input: the point where to compute the function
     ! local variable
-      real(rp), parameter :: smearing = 0.02_rp  !smearing in eV
+      real(rp), parameter :: smearing = 0.005_rp  !smearing in eV
     ! Fermi-Dirac smearing
       if (abs(x) <= 36.0_rp) then
          delta_function = 1.0_rp/(smearing*(2.0_rp + exp(-x/smearing) + exp(+x/smearing)))

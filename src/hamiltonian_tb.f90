@@ -302,9 +302,10 @@ contains
   end subroutine add_delta_h_so
 
   !> Calculate the k-space projection M(k) of the matrix M(r)
-  function build_projection_k(obj,m_r,c_k) result(m_k)
+  function build_projection_k(obj,m_r,c_k,diag) result(m_k)
     ! INPUT
     class(hamiltonian_tb),intent(in) :: obj
+    logical :: diag
     real(rp),dimension(obj%a_tb%na,0:obj%a_tb%nn_max,obj%e_tb%no_max,obj%e_tb%no_max), intent(in) :: m_r
     complex(rp),dimension(obj%a_tb%na,obj%a_tb%nn_max,obj%a_tb%nsp), intent(in) :: c_k
     ! OUTPUT
@@ -337,6 +338,7 @@ contains
         end do
       end do
 
+     if(diag==.true.) then
       do ia1=1,obj%a_tb%na
         ie1 = obj%a_tb%ia2ie(ia1)
         do io1=1,obj%e_tb%no(ie1)
@@ -347,6 +349,7 @@ contains
           end do
         end do
       end do
+     endif
 
     case(4)
       do ispin=1,2
@@ -369,7 +372,7 @@ contains
             end do
           end do
         end do
-
+     if(diag==.true.) then
         do ia1=1,obj%a_tb%na
           ie1 = obj%a_tb%ia2ie(ia1)
           do io1=1,obj%e_tb%no(ie1)
@@ -380,6 +383,7 @@ contains
             end do
           end do
         end do
+      endif
 
       end do
     end select
@@ -520,8 +524,8 @@ contains
     ! Build reciprocal space projections
     k_point(:) = obj%k%x(ik,:)
     c_k = obj%a_tb%build_c_k(k_point)
-    v_k1 = obj%build_projection_k(obj%h_r,c_k)
-    s_k =  obj%build_projection_k(obj%s_r,c_k)
+    v_k1 = obj%build_projection_k(obj%h_r,c_k,.true.)
+    s_k =  obj%build_projection_k(obj%s_r,c_k,.true.)
     s_k_work = s_k
 
 #if defined(DEBUG)
@@ -571,6 +575,7 @@ contains
     ! OUTPUT
     real(rp),dimension(obj%nh) :: w_k
     ! LOCAL
+    integer :: ih, jh, ia, ja, ie1, ie2, is
     complex(rp),dimension(:,:,:), allocatable :: c_k
     complex(rp),dimension(:,:), allocatable :: h_k, s_k
     real(rp), dimension(3) :: k_point ! a k-point
@@ -593,8 +598,8 @@ contains
     ! Build reciprocal space projections
     k_point(:)=obj%k%x(ik,:)
     c_k = obj%a_tb%build_c_k(k_point)
-    h_k = obj%build_projection_k(obj%h_r,c_k)
-    s_k = obj%build_projection_k(obj%s_r,c_k)
+    h_k = obj%build_projection_k(obj%h_r,c_k,.true.)
+    s_k = obj%build_projection_k(obj%s_r,c_k,.true.)
 
     !	Add renormalization
     call obj%add_delta_h_ov(isl,h_k,s_k)
@@ -603,6 +608,7 @@ contains
       call obj%add_delta_h_so(h_k)
     end if
     !call obj%add_delta_h_subsystem()
+
 
     !	Build the eigenvalues
 #if defined(LAPACK95_FOUND)

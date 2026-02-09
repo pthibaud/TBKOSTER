@@ -203,6 +203,7 @@ module atom_mod
     final :: destructor
     ! Procedures
     procedure :: build_c_k
+    procedure :: build_dk_c_k
     procedure :: calculate_neighbours
     procedure :: calculate_nel
     !procedure :: calculate_ns
@@ -246,7 +247,7 @@ contains
     if(allocated(obj%m_pen))      deallocate(obj%m_pen)
     if(allocated(obj%nn))         deallocate(obj%nn)
     if(allocated(obj%ian2ia))     deallocate(obj%ian2ia)
-    if(allocated(obj%iapbc2in))     deallocate(obj%iapbc2in)
+    if(allocated(obj%iapbc2in))   deallocate(obj%iapbc2in)
     if(allocated(obj%rn))         deallocate(obj%rn)
     if(allocated(obj%lambda_pen)) deallocate(obj%lambda_pen)
     if(allocated(obj%b_pen))      deallocate(obj%b_pen)
@@ -266,6 +267,7 @@ contains
     deallocate(tug)
   end function build_ia2ie
 
+  ! calculate the factor e^{i k.(R+tau_j-tau_i)
   function build_c_k(obj,k) result(c_k)
     ! INPUT
     class(atom),intent(in) :: obj
@@ -282,7 +284,9 @@ contains
     case(1,2)
       do ia=1,obj%na
         do in=1,obj%nn(ia)
-          RR_cart = obj%rn(ia,in,:)
+         ! RR_cart is in cartesian coordinates
+          RR_cart = obj%rn(ia,in,:)    
+          ! RR_unit is in the unit vector coordinates
           RR_unit(1) = dot_product(RR_cart,obj%l_k%v(1,:))
           RR_unit(2) = dot_product(RR_cart,obj%l_k%v(2,:))
           RR_unit(3) = dot_product(RR_cart,obj%l_k%v(3,:))
@@ -308,6 +312,52 @@ contains
       end do
     end select
   end function build_c_k
+
+  ! calculate the factor e^{i k.(R+tau_j-tau_i)
+  function build_dk_c_k(obj,k) result(dk_c_k)
+    ! INPUT
+    class(atom),intent(in) :: obj
+    real(rp),dimension(3),intent(in) :: k
+    ! OUTPUT
+    complex(rp),dimension(3,obj%na,obj%nn_max,obj%nsp) :: dk_c_k
+    !	LOCAL
+    real(rp) :: k_temp(3),RR_cart(3),RR_unit(3),prodscalR
+    integer :: ia,in,is
+
+    dk_c_k = cmplx(0.0_rp,0.0_rp,kind=rp)
+
+    select case(obj%ns)
+    case(1,2)
+      do ia=1,obj%na
+        do in=1,obj%nn(ia)
+         ! RR_cart is in cartesian coordinates
+          RR_cart = obj%rn(ia,in,:)    
+          ! RR_unit is in the unit vector coordinates
+          RR_unit(1) = dot_product(RR_cart,obj%l_k%v(1,:))
+          RR_unit(2) = dot_product(RR_cart,obj%l_k%v(2,:))
+          RR_unit(3) = dot_product(RR_cart,obj%l_k%v(3,:))
+          ProdscalR  = dot_product(k,RR_unit)
+          do is=1,obj%ns
+            dk_c_k(:,ia,in,is) = i_unit*RR_cart(:)*exp(2*pi*i_unit*prodscalR)
+          end do
+        end do
+      end do
+    case(4)
+      do ia=1,obj%na
+        do in=1,obj%nn(ia)
+          RR_cart = obj%rn(ia,in,:)
+          RR_unit(1) = dot_product(RR_cart,obj%l_k%v(1,:))
+          RR_unit(2) = dot_product(RR_cart,obj%l_k%v(2,:))
+          RR_unit(3) = dot_product(RR_cart,obj%l_k%v(3,:))
+          do is=1,2
+            k_temp = k + (2*is-3)*0.5_rp*obj%k_spiral
+            ProdscalR  = dot_product(k_temp,RR_unit)
+            dk_c_k(:,ia,in,is) = i_unit*RR_cart(:)*exp(2*pi*i_unit*prodscalR)
+          end do
+        end do
+      end do
+    end select
+  end function build_dk_c_k
 
   subroutine calculate_neighbours(obj,r_max,type)
     ! INPUT
