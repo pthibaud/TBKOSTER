@@ -436,7 +436,13 @@ contains
               elseif(TRIM(obj%band%proj)=='spin,orbit') then
                 call obj%band%save_proj_band_spin(ik, isl, v_k)
                 call obj%band%save_proj_band_orbit(ik, isl, v_k) 
-              endif
+              elseif(TRIM(obj%band%proj)=='velocity') then
+                call obj%band%save_band_velocity(ik, isl, v_k) 
+              elseif(TRIM(obj%band%proj)=='linear-response') then
+                call obj%band%save_proj_band_spin(ik, isl, v_k)
+                call obj%band%save_proj_band_orbit(ik, isl, v_k) 
+                call obj%band%save_band_velocity(ik, isl, v_k) 
+               endif
           end select
         end if
           
