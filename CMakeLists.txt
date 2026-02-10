@@ -38,7 +38,7 @@ endmacro(opt)
 
 opt(DOXYGEN "Enable Doxygen engine for source documentation" OFF)
 opt(FLUSH "Enable manually flush files" ON)
-opt(LATEX "Enable LaTeX engine for documentation" ON)
+opt(LATEX "Enable LaTeX engine for documentation" OFF)
 opt(OPENMP "Enable OpenMP support" OFF)
 opt(TESTS "Enable tests" OFF)
 opt(FORTRAN_STDLIB "Enable fortran-lang stdlib" OFF)

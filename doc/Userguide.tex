@@ -168,135 +168,131 @@ This section displays references for computing the magnetic electronic structure
 
 \section{Download the code}
 
-The first step is to download the latest release of TBKOSTER from its github repository. To proceed, you have to check that git is installed~:
+The first step is to download the latest release of TBKOSTER from its GitHub repository. To proceed, you have to check that Git is installed:
 \begin{lstlisting}[language=bash,basicstyle=\small\ttfamily]
 $ locate git
 \end{lstlisting}
-Then, clone the distant repository to your local computer~:
+Then, clone the distant repository to your local computer:
 \begin{lstlisting}[language=bash,basicstyle=\small\ttfamily]
 $ git clone https://github.com/spindynamics/TBKOSTER.git
 \end{lstlisting}
-In order to build this documentation, a LaTeX distribution is mandatory, including some external packages such as pdflatex, bibtex and htlatex.
+In order to build this documentation, a LaTeX distribution is mandatory, including some external packages such as pdflatex, bibtex, and htlatex.
 %%%%%%%%%%%%%%%%%%%%%%%
 \section{Linux}
-Preferred method : on Ubuntu 22.04 and later, install gfortran and cmake to compile TBKOSTER. Be sure to get the mandatory related dependencies of these packages.
+Preferred method: On Ubuntu 22.04 and later, install gfortran and cmake to compile TBKOSTER. Ensure all mandatory dependencies are installed.
 \begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ sudo apt install cmake gfortran clang doxygen graphviz libopenblas-dev libomp-dev texlive-latex-base texlive-latex-extra texlive-bibtex-extra tex4ht biber
 \end{lstlisting}
-Be sure to update to cmake release 3.13 or higher.
-In order to build the code, to the root of TBKOSTER directory~:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+Ensure cmake is updated to version 3.13 or higher.
+To build the code, navigate to the root of the TBKOSTER directory:
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
   $ cd TBKOSTER
   $ cmake -B build
   $ cmake --build build
 \end{lstlisting}
-To get access to the OpenMP parallel feature of the code, be sure to update your packages with the openmp support.
+To access the OpenMP parallel feature, ensure your packages include OpenMP support.
 
-If you want to use Intel compiler, MKL and Intel Lapack libraries, you have to swicth this to cmake as, in sequential :
+If you prefer to use the Intel compiler, MKL, and Intel Lapack libraries, configure cmake as follows for sequential builds:
 \begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
 $ BLA_VENDOR=Intel10_64lp_seq FC=ifort cmake -B build
 \end{lstlisting}
-Be sure that the variable MKLROOT is set accordingly.
+Ensure the MKLROOT environment variable is set correctly.
 
-In order to get good numerical performance, you have to produce a Release version as :
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
+In order to get good numerical performance, you have to produce a Release version as:
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,breaklines=true]
 $ cmake -DCMAKE_BUILD_TYPE=Release -B build
 \end{lstlisting}
 You can combine all these options.
-If you prefer to prepare an installation with a given installed Lapack library and gfortran try :
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
+If you prefer to prepare an installation with a given installed Lapack library and gfortran, try:
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,breaklines=true]
 $ BLA_VENDOR=OpenBLAS FC=gfortran cmake -B build
 \end{lstlisting}
 %%%%%%%%%%%%%%%%%%%%%%%
 \section{MacOS}
-Preferred method: on MacOS 10.11 and later, install cmake, lapack and gfortran with llvm support, with the \href{https://www.macports.org}{ports} subsystem:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
-$ sudo port install cmake gcc libgcc gcc_select \
-llvm-3.9 llvm_select lapack libomp
+Preferred method: On MacOS 10.11 and later, install cmake, lapack, and gfortran with llvm support using the \href{https://www.macports.org}{ports} subsystem:
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
+$ sudo port install cmake gcc libgcc gcc_select llvm-3.9 llvm_select lapack libomp
 \end{lstlisting}
 \href{https://brew.sh}{Brew} is also a working alternative.
-In order to build the code, to the root of TBKOSTER directory~:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+To build the code, navigate to the root of the TBKOSTER directory:
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ cd TBKOSTER
 $ cmake -B build
 $ cmake --build build
 \end{lstlisting}
-For both Linux and MacOS platform, you can invoke cmake with Release or Debug option in order to deploy these releases. Simply try
+For both Linux and MacOS platforms, you can invoke cmake with Release or Debug options to deploy these releases. Simply try:
 \begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
 $ cmake -DCMAKE_BUILD_TYPE=Release/Debug -B build
 \end{lstlisting}
-To get access to the OpenMP implementation, then update your ports with openmp package. You can easily change your settings with (assuming MacOS port is installed)
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+To access the OpenMP implementation, update your ports with the openmp package. You can easily change your settings with (assuming MacOS port is installed):
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ port select --summary
 $ port select --set llvm mp-llvm-3.9
 $ port select --set gcc mp-gcc6
 \end{lstlisting}
-In order to get good numerical performance, you may use the OpenBLAS library and produce a Release version as :
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
+To get good numerical performance, use the OpenBLAS library and produce a Release version as:
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ port install openblas
-$ BLA_VENDOR=OpenBLAS \
-cmake -DCMAKE_BUILD_TYPE=Release -B build
+$ BLA_VENDOR=OpenBLAS cmake -DCMAKE_BUILD_TYPE=Release -B build
 \end{lstlisting}
 %%%%%%%%%%%%%%%%%%%%
 \section{MS Windows}
-For Windows earlier than 10 release 1709, you have to consider the following method:
-download and follow the instructions to install MSYS2 software distro and building platform (http://www.msys2.org/). Open an MSYS console and first upgrade the whole system~:
+For Windows earlier than 10 release 1709, consider the following method:
+Download and follow the instructions to install MSYS2 software distro and building platform (\href{http://www.msys2.org/}{MSYS2}). Open an MSYS console and first upgrade the whole system:
 \begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
 $ pacman -Syu
 \end{lstlisting}
-get the compilation toolchain~:
+Get the compilation toolchain:
 \begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
 $ pacman -S mingw-w64-x86_64-toolchain
 \end{lstlisting}
-get the gfortran compiler and lapack library~:
+Get the gfortran compiler and lapack library:
 \begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
 $ pacman -S mingw-w64-x86_64-gcc-libgfortran
 $ pacman -S mingw-w64-x86_64-openblas
 \end{lstlisting}
-get the cmake program to control the software compilation process using simple platform and compiler independent configuration files, and to generate native makefiles and workspaces that can be used in the compiler environment of your choice~:
+Get the cmake program to control the software compilation process using simple platform and compiler independent configuration files, and to generate native makefiles and workspaces that can be used in the compiler environment of your choice:
 \begin{lstlisting}[language=bash,basicstyle=\small\ttfamily]
 $ pacman -S cmake
 \end{lstlisting}
 
-In order to build the code, open a MSYS MINGW 64-bit console. To the root of TBKOSTER directory~:
-\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single]
-$ cmake -G"MinGW Makefiles" \
--DCMAKE_SH="CMAKE_SH-NOTFOUND" -B build
+To build the code, open an MSYS MINGW 64-bit console. Navigate to the root of the TBKOSTER directory:
+\begin{lstlisting}[language=sh,basicstyle=\small\ttfamily,frame=single,breaklines=true]
+$ cmake -G"MinGW Makefiles" -DCMAKE_SH="CMAKE_SH-NOTFOUND" -B build
 $ cd build && mingw32-make
 \end{lstlisting}
-In order to run TBKOSTER.exe, be sure you have the TERM and TERMINFO environment variables up to date into your .bashrc file~:
+To run TBKOSTER.exe, ensure you have the TERM and TERMINFO environment variables updated in your .bashrc file:
 \begin{lstlisting}[language=sh,basicstyle=\small\ttfamily]
 $ export TERM=xterm
 $ export TERMINFO=/c/Program Files/msys/mingw64/share/terminfo
 \end{lstlisting}
 No OpenMP implementation for MS Windows has been tested.
 
-For Windows higher than 10 release 1709, you simply have to activate the optional Windows SubSystem for Linux, download the Ubuntu Package from the Microsoft Marketplace and follow the instructions of the Linux section of this manual.
+For Windows 10 release 1709 and higher, activate the optional Windows SubSystem for Linux, download the Ubuntu Package from the Microsoft Marketplace, and follow the instructions of the Linux section of this manual.
 \vfil
 
 \section{Additional features}
-Experimental features are coming from the dev branch of TBKOSTER.
-First install the \href{https://stdlib.fortran-lang.org/}{fortran stdlib}:
-\begin{lstlisting}[language=bash,basicstyle=\small\ttfamily,frame=single]
+Experimental features are available in the dev branch of TBKOSTER. Follow these steps to install and compile the necessary dependencies:
+\begin{lstlisting}[language=bash,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ python3 -m venv .venv
 $ source .venv/bin/activate
 $ pip install fypp
 $ git clone https://github.com/fortran-lang/stdlib
 $ cd stdlib
-$ cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local -Bbuild .
+$ cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local -DFIND_BLAS=off -Bbuild .
 $ cmake --build build --parallel 4
 $ cmake --install build 
 \end{lstlisting}
-The fortran stdlib is installed in your \$HOME/.local folder.
-Return to TBKOSTER, switch to the dev branch and compile 
-\begin{lstlisting}[language=bash,basicstyle=\small\ttfamily,frame=single]
+
+The fortran stdlib is installed in your \$HOME/.local folder. Return to the TBKOSTER directory, switch to the dev branch, and compile the code:
+\begin{lstlisting}[language=bash,basicstyle=\small\ttfamily,frame=single,breaklines=true]
 $ cd TBKOSTER
 $ git checkout dev
 $ rm -fr build
 $ cmake -Bbuild .
 $ cmake --build build --parallel 4
 \end{lstlisting}
-During the process, the fortran stdlib has to be found.
+During the compilation process, ensure that the fortran stdlib is correctly located.
 
 \vfil
 \pagebreak
@@ -400,31 +396,30 @@ p{0.3\textwidth} @{\hspace{0.025\textwidth}} p{0.65\textwidth} @{} }
 & & \\
 \hline
 \hline
-namelist &Variable     &Description\\
+namelist & Variable & Description \\
 \hline 
-\&calculation &  &\\
+\&calculation & & \\
 \hline
- & \verb+pre_processing+  (char)    & type of pre-processing calculation: 
+& \verb+pre_processing+ (char) & Type of pre-processing calculation:
                             \begin{liste} 
-                                       \item 'txt2xyz'$\ra$ write geometry in xyz format, 
+                              \item 'txt2xyz'$\ra$ write geometry in xyz format, 
                             \end{liste} \\
-& \verb+pre_processing_dir+  (char)    & directory for saving pre-processing calculation: 
+& \verb+pre_processing_dir+ (char) & Directory for saving pre-processing calculation:
                             \begin{liste} 
-                                       \item 'txt2xyz'$\ra$ default value, 
+                              \item 'txt2xyz'$\ra$ default value, 
                             \end{liste} \\
-
- & \verb+processing+  (char)    & type of processing calculation: 
+& \verb+processing+ (char) & Type of processing calculation:
                             \begin{liste} 
-                                       \item 'scf'$\ra$ \textbf{self-consistent}, 
-                                       \item 'md'$\ra$ molecular-dynamics. 
-                                       \item 'sd'$\ra$ spin-dynamics. 
+    \item 'scf' $\ra$ \textbf{Self-consistent}.
+    \item 'md' $\ra$ Molecular-dynamics.
+    \item 'sd' $\ra$ Spin-dynamics.
                             \end{liste} \\
- & \verb+post_processing+  (char)    & type of post-processing calculation (always preceded by a scf calculation): 
+& \verb+post_processing+ (char) & Type of post-processing calculation (always preceded by a scf calculation):
                             \begin{liste} 
-                                       \item 'band'$\ra$ band structure calculation, 
-                                       \item 'dos'$\ra$ density of states calculation. 
-                                        \item 'forces'$\ra$ forces calculation. 
-                                       \item 'mft'$\ra$ magnetic force theorem. 
+    \item 'band' $\ra$ Band structure calculation.
+    \item 'dos' $\ra$ Density of states calculation.
+    \item 'forces' $\ra$ Forces calculation.
+    \item 'mft' $\ra$ Magnetic force theorem.
                             \end{liste} \\
 \hline
 \&units &  &   \\
