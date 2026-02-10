@@ -3,24 +3,12 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif()
 
-#cmake_policy(SET CMP0011 NEW)
-#cmake_policy(SET CMP0012 NEW)
-#cmake_policy(SET CMP0048 NEW)
-#cmake_policy(SET CMP0054 NEW)
 cmake_policy(SET CMP0074 NEW)
-
-#if(UNIX)
-#  if(APPLE OR MINGW)
-#    cmake_minimum_required(VERSION 3.9)
-#  elseif(NOT APPLE)
-#    cmake_minimum_required(VERSION 3.5)
-#  endif()
-#endif()
 
 cmake_minimum_required(VERSION 3.13)
 
 set(PROJECT_NAME TBKOSTER)
-project(${PROJECT_NAME} VERSION 1.9.4.0 DESCRIPTION "Tight-Binding Kernel of Objects for SpinTronics Enhanced Research")
+project(${PROJECT_NAME} VERSION 1.9.5.0 DESCRIPTION "Tight-Binding Kernel of Objects for SpinTronics Enhanced Research")
 message(STATUS "Preparing ${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK} ...")
 message(STATUS "Running on ${CMAKE_SYSTEM_NAME} version ${CMAKE_SYSTEM_VERSION}")
 
