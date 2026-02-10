@@ -618,7 +618,7 @@ contains
                                            [character(len=sl) :: 'm'], tag=.false.)
             write (unit, '(a)') ' timestep = '//real2str(t*obj%u%convert_time('from', 'hau')) &
                //' ['//trim(obj%u%time)//']'
-            ! compute the spin themperature
+            ! compute the spin temperature
             temp = calculate_spin_temperature(obj)
             write (unit, '(a)') ' spin temperature = '//real2str(temp)
          end if

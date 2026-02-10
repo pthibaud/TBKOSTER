@@ -252,7 +252,7 @@ contains
       inquire (unit=10, opened=isopen)
       if (isopen) then
          write (error_unit, '(a)') 'self_consistent_field%read_txt() : Unit 10 is &
-   &      already open'
+                                    & already open'
          error stop
       else
          open (unit=10, file=file_rt, action='read', iostat=iostatus, status='old')

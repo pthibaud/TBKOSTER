@@ -324,7 +324,7 @@ contains
       if (type /= 'mae' &
           .and. type /= 'mconfig') then
          write (error_unit, *) 'mft%check_calc(): mft%calc must be one of: &
-   &       ''mae'', ''mconfig'', '
+                              & ''mae'', ''mconfig'', '
          error stop
       end if
    end subroutine check_calc
@@ -337,7 +337,7 @@ contains
           .and. type /= 'mesh' &
           .and. type /= 'path') then
          write (error_unit, *) 'mft%check_type(): mft%type must be one of: &
-   &       ''list'', ''mesh'', ''path'''
+                              & ''list'', ''mesh'', ''path'''
          error stop
       end if
    end subroutine check_type

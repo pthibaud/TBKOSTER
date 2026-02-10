@@ -158,7 +158,7 @@ contains
           .and. ensemble /= 'npt') then
          write (error_unit, *) 'molecular_dynamics%check_ensemble(): &
          & molecular_dynamics%ensemble must be one of: ''nve'', ''nvt'', &
-&            ''muvt'', ''nph'', ''npt'', ''cg'''
+         & ''muvt'', ''nph'', ''npt'', ''cg'''
          error stop
       end if
    end subroutine check_ensemble
@@ -232,7 +232,7 @@ contains
       call obj%f%scf%run(unit)
       call obj%f%calculate_forces()
 
-      ! get the atomic masses once and put them in a corrresponding array
+      ! get the atomic masses once and put them in a corresponding array
       allocate (mass(na))
       do ia = 1, na
          mass(ia) = obj%f%e_tb%mass(obj%f%a_tb%ia2ie(ia))* &
@@ -281,7 +281,7 @@ contains
       deallocate (mass)
    end subroutine integrate_nve
 
-   !> Integration with the Langevin Dynamcis to produce an NVT ensemble
+   !> Integration with the Langevin Dynamics to produce an NVT ensemble
    subroutine integrate_nvt(obj, unit)
       class(molecular_dynamics), intent(inout) :: obj
       integer, intent(in) :: unit

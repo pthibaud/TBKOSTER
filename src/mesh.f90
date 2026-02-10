@@ -214,7 +214,7 @@ contains
           .and. type /= 'mp' &
           .and. type /= 'path') then
          write (error_unit, *) 'mesh%check_type(): mesh%type must be one of: &
-   &       ''list'', ''mp'', ''path'''
+                              & ''list'', ''mp'', ''path'''
          error stop
       end if
    end subroutine check_type

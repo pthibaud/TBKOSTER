@@ -154,7 +154,7 @@ contains
       select case (obj%a%ns)
       case (1, 2)
          do ien = 1, obj%nen
-!        en = obj%en%en_f + obj%en_min + (ien-1)*obj%den
+      !        en = obj%en%en_f + obj%en_min + (ien-1)*obj%den
             en = obj%en_min + (ien - 1)*obj%den
             do jmat = 1, obj%h%nh
                jmat2 = isl + (jmat - 1)*obj%a%ns
@@ -167,7 +167,7 @@ contains
          end do ! end of ien loop
       case (4)
          do ien = 1, obj%nen
-!        en = obj%en%en_f + obj%en_min + (ien-1)*obj%den
+      !        en = obj%en%en_f + obj%en_min + (ien-1)*obj%den
             en = obj%en_min + (ien - 1)*obj%den
             do jmat = 1, obj%h%nh
                nn = ik + (jmat - 1)*obj%k%nx
@@ -201,7 +201,7 @@ contains
                ie = obj%a%ia2ie(ia)
                do ien = 1, obj%nen
 
-!            en = obj%en%en_f + obj%en_min + (ien-1)*obj%den
+            !     en = obj%en%en_f + obj%en_min + (ien-1)*obj%den
                   en = obj%en_min + (ien - 1)*obj%den
                   do jmat = 1, obj%h%nh
 
@@ -301,7 +301,7 @@ contains
                ie = obj%a%ia2ie(ia)
                do ien = 1, obj%nen
 
-!            en= obj%en%en_f +obj%en_min+(ien-1)*obj%den
+               !  en= obj%en%en_f +obj%en_min+(ien-1)*obj%den
                   en = obj%en_min + (ien - 1)*obj%den
                   do jmat = 1, obj%h%nh
 

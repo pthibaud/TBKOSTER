@@ -94,22 +94,22 @@ contains
       ! OUTPUT
       real(rp), dimension(:, :), allocatable :: v_dir
       allocate (v_dir(size(v_car, 1), size(v_car, 2)))
-! #if !defined(BLAS95_FOUND)
-!     integer :: m, n, k
-!     integer :: lda, ldb, ldc
-! #endif
-!
-! #if defined(BLAS95_FOUND)
-!     call gemm(v_car,obj%vi,v_dir)
-! #else
-!     m = size(v_car,1)
-!     n = size(obj%vi,2)
-!     k = size(obj%vi,1)
-!     lda = max(1,m)
-!     ldb = max(1,n)
-!     ldc = max(1,m)
-!     call dgemm('N','N',m,n,k,1.0_rp,v_car,lda,obj%vi,ldb,0.0_rp,v_dir,ldc)
-! #endif
+      ! #if !defined(BLAS95_FOUND)
+      !     integer :: m, n, k
+      !     integer :: lda, ldb, ldc
+      ! #endif
+      !
+      ! #if defined(BLAS95_FOUND)
+      !     call gemm(v_car,obj%vi,v_dir)
+      ! #else
+      !     m = size(v_car,1)
+      !     n = size(obj%vi,2)
+      !     k = size(obj%vi,1)
+      !     lda = max(1,m)
+      !     ldb = max(1,n)
+      !     ldc = max(1,m)
+      !     call dgemm('N','N',m,n,k,1.0_rp,v_car,lda,obj%vi,ldb,0.0_rp,v_dir,ldc)
+      ! #endif
 
       v_dir = matmul(v_car, obj%vi)
    end function cart2dir
