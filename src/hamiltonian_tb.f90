@@ -338,7 +338,7 @@ contains
         end do
       end do
 
-     if(diag==.true.) then
+     if (diag .eqv. .true.) then
       do ia1=1,obj%a_tb%na
         ie1 = obj%a_tb%ia2ie(ia1)
         do io1=1,obj%e_tb%no(ie1)
@@ -372,7 +372,7 @@ contains
             end do
           end do
         end do
-     if(diag==.true.) then
+     if (diag .eqv. .true.) then
         do ia1=1,obj%a_tb%na
           ie1 = obj%a_tb%ia2ie(ia1)
           do io1=1,obj%e_tb%no(ie1)
