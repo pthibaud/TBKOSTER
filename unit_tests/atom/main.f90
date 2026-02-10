@@ -6,7 +6,7 @@ program main
 	!print *
 	!call test_build_ia2ie()
 	!print *
-	call test_read_namelist()
+	call test_read_txt()
 	print *
 end program main
 
@@ -42,16 +42,16 @@ subroutine test_build_ia2ie()
 	!print *, build_ia2ie((/'Fe_atom1','C _atom1','Fe_atom2','C _atom2'/))
 end subroutine test_build_ia2ie
 
-subroutine test_read_namelist()
+subroutine test_read_txt()
 	use, intrinsic :: iso_fortran_env, only: output_unit
 	use atom_mod
 	implicit none
 
 	type(atom) :: obj
 
-	print *, "test_read_namelist()"
-	print *, "obj%read_namelist()"
-	print *, "obj%write_namelist_formatted()"
-	call obj%read_namelist()
-	call obj%write_namelist_formatted(unit=output_unit)
-end subroutine test_read_namelist
+	print *, "test_read_txt()"
+	print *, "obj%read_txt()"
+	print *, "obj%write_txt_formatted()"
+	call obj%read_txt()
+	call obj%write_txt_formatted(unit=output_unit)
+end subroutine test_read_txt

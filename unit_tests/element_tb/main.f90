@@ -4,9 +4,9 @@ program main
 	print *
 	!call test_accessors()
 	!print *
-	call test_read_namelist()
+	call test_read_txt()
 	print *
-	call test_write_namelist()
+	call test_write_txt()
 	print *
 end program main
 
@@ -26,7 +26,7 @@ subroutine test_constructor()
 	print *, "obj%print()"
 	print *
 	obj = element_tb(symbol,2,filename)
-	call obj%write_namelist()
+	call obj%write_txt()
 end subroutine test_constructor
 
 subroutine test_accessors()
@@ -50,21 +50,21 @@ subroutine test_accessors()
 	!print *, obj%get_symbol()
 end subroutine test_accessors
 
-subroutine test_read_namelist()
+subroutine test_read_txt()
 	use element_tb_mod
 	implicit none
 
 	type(element_tb) :: obj
 
-	print *, "test_read_namelist()"
-	print *, "obj%read_namelist()"
+	print *, "test_read_txt()"
+	print *, "obj%read_txt()"
 	print *, "obj%print()"
 	print *
-	call obj%read_namelist()
-	call obj%write_namelist()
-end subroutine test_read_namelist
+	call obj%read_txt()
+	call obj%write_txt()
+end subroutine test_read_txt
 
-subroutine test_write_namelist()
+subroutine test_write_txt()
 	use element_tb_mod
 	use string_mod, only: sl
 	implicit none
@@ -75,9 +75,9 @@ subroutine test_write_namelist()
      "/mnt/Data/Dropbox/github.com/TBKOSTER/Codes/TB/TB_PARAM/c_par_105"]
 	type(element_tb) :: obj
 
-	print *, "test_write_namelist()"
+	print *, "test_write_txt()"
 	print *, "obj = element_tb((/'Fe','C '/),2,filename)"
-	print *, "obj%write_namelist()"
+	print *, "obj%write_txt()"
 	obj = element_tb(symbol,2,filename)
-	call obj%write_namelist()
-end subroutine test_write_namelist
+	call obj%write_txt()
+end subroutine test_write_txt
