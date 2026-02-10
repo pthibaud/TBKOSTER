@@ -42,6 +42,10 @@ doc/html
 doc/latex
 doc/UserManual.pdf
 doc/UserManual.tex
+doc/src/TBKOSTER-userguide.pdf
+doc/src/TBKOSTER_userguide.pdf
+doc/src/TB-formalism.pdf
+doc/src/TBformalism.pdf
 lib
 modules
 python/__pycache__
