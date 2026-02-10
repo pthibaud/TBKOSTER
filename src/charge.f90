@@ -1497,8 +1497,8 @@ contains
                         do io2 = 1, obj%e%no(ie)
                            jmat = iaos2ih(ia, io2, ispin)
                            obj%om(ia, ir, l) = obj%om(ia, ir, l) &
-                                               + w*f_k(nn)*obj%a%g_s*conjg(v_k(1, imat, kmat))&
-                                               *LMAT(io1, io2)*v_k(2, jmat, kmat)
+                              + w*f_k(nn)*obj%a%g_s*conjg(v_k(1, imat, kmat))&
+                              *LMAT(obj%e%o(ie, io1), obj%e%o(ie, io2))*v_k(2, jmat, kmat)
                         end do
                      end do
 

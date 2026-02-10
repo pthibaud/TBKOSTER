@@ -41,6 +41,12 @@ add_executable(
   bands.f90
 )
 
+# Add bands executable
+add_executable(
+  linear_response.x
+  linear_response.f90
+)
+
 # Add pdos executable
 add_executable(
   pdos.x
@@ -78,6 +84,7 @@ add_executable(
 )
 
 target_link_libraries(bands.x ${PROJECT_NAME} ${CMAKE_DL_LIBS})
+target_link_libraries(linear_response.x ${PROJECT_NAME} ${CMAKE_DL_LIBS})
 target_link_libraries(pdos.x ${PROJECT_NAME} ${CMAKE_DL_LIBS})
 target_link_libraries(mft.x ${PROJECT_NAME} ${CMAKE_DL_LIBS})
 target_link_libraries(fermisurface.x ${PROJECT_NAME} ${CMAKE_DL_LIBS})
