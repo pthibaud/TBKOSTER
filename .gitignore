@@ -82,3 +82,8 @@ doc/Userguide.pdf
 doc/Formalism.pdf
 TBKExamples
 
+python/.python-version
+.gitignore
+python/uv.lock
+python/README.md
+python/pyproject.toml

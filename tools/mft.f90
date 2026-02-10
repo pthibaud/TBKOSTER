@@ -154,143 +154,143 @@ program pmft
 
 contains
 
-  subroutine build_mft(calc, type, na, ne, ia2ie, Symbol, v, r, na_mft, ia, nconfig, mconfig_i, &
-                      mft_tot_i, mft_sum_i, mft_s_i, mft_p_i, mft_d_i, &
-                      mft_px_i, mft_py_i, mft_pz_i, &
-                      mft_dxy_i, mft_dyz_i, mft_dzx_i, mft_dx2y2_i, mft_dz2r2_i)
-    use precision_mod
-    use string_mod
-    use math_mod, only: i_unit
-    implicit none
-    integer :: na, ne, nconfig, na_mft
-    integer :: ia_mft, iconfig, iatom, imin
-    integer, parameter :: unit_mae_angle = 10
-    integer, parameter :: unit_mae_xyz = 11
-    integer, parameter :: unit_mae_atom = 12
-    integer, parameter :: unit_config = 13
-    integer :: ia(na_mft), ia2ie(na)
-    character(len=2), dimension(ne):: symbol
-    character(len=7) :: calc
-    character(len=4) :: type
-    real(rp), dimension(na, nconfig, 2) :: mconfig_i
-    real(rp), dimension(na, 3) :: r
-    real(rp), dimension(3, 3) :: v
-    real(rp) :: angle, mae, theta, phi, emin
-    real(rp) :: mft_tot_i(nconfig), mft_sum_i(nconfig)
-    complex(rp) :: mft_s_i(nconfig, na_mft), mft_p_i(nconfig, na_mft), &
-                   mft_px_i(nconfig, na_mft), mft_py_i(nconfig, na_mft), mft_pz_i(nconfig, na_mft)
-    complex(rp) :: mft_d_i(nconfig, na_mft), mft_dxy_i(nconfig, na_mft), mft_dyz_i(nconfig, na_mft), &
-                   mft_dzx_i(nconfig, na_mft), mft_dx2y2_i(nconfig, na_mft), mft_dz2r2_i(nconfig, na_mft)
-    character(len=*), parameter :: dir = 'mft/'
-    character(len=*), parameter :: file_mae_theta = 'mae_angle.dat'
-    character(len=*), parameter :: file_mae_xyz = 'mae.xyz'
-    character(len=*), parameter :: file_mae_atom = 'mae_atom.dat'
-    character(len=*), parameter :: file_config = 'mft_config.dat'
-    character(len=80) :: fmt
+   subroutine build_mft(calc, type, na, ne, ia2ie, Symbol, v, r, na_mft, ia, nconfig, mconfig_i, &
+                        mft_tot_i, mft_sum_i, mft_s_i, mft_p_i, mft_d_i, &
+                        mft_px_i, mft_py_i, mft_pz_i, &
+                        mft_dxy_i, mft_dyz_i, mft_dzx_i, mft_dx2y2_i, mft_dz2r2_i)
+      use precision_mod
+      use string_mod
+      use math_mod, only: i_unit
+      implicit none
+      integer :: na, ne, nconfig, na_mft
+      integer :: ia_mft, iconfig, iatom, imin
+      integer, parameter :: unit_mae_angle = 10
+      integer, parameter :: unit_mae_xyz = 11
+      integer, parameter :: unit_mae_atom = 12
+      integer, parameter :: unit_config = 13
+      integer :: ia(na_mft), ia2ie(na)
+      character(len=2), dimension(ne):: symbol
+      character(len=7) :: calc
+      character(len=4) :: type
+      real(rp), dimension(na, nconfig, 2) :: mconfig_i
+      real(rp), dimension(na, 3) :: r
+      real(rp), dimension(3, 3) :: v
+      real(rp) :: angle, mae, theta, phi, emin
+      real(rp) :: mft_tot_i(nconfig), mft_sum_i(nconfig)
+      complex(rp) :: mft_s_i(nconfig, na_mft), mft_p_i(nconfig, na_mft), &
+                     mft_px_i(nconfig, na_mft), mft_py_i(nconfig, na_mft), mft_pz_i(nconfig, na_mft)
+      complex(rp) :: mft_d_i(nconfig, na_mft), mft_dxy_i(nconfig, na_mft), mft_dyz_i(nconfig, na_mft), &
+                     mft_dzx_i(nconfig, na_mft), mft_dx2y2_i(nconfig, na_mft), mft_dz2r2_i(nconfig, na_mft)
+      character(len=*), parameter :: dir = 'mft/'
+      character(len=*), parameter :: file_mae_theta = 'mae_angle.dat'
+      character(len=*), parameter :: file_mae_xyz = 'mae.xyz'
+      character(len=*), parameter :: file_mae_atom = 'mae_atom.dat'
+      character(len=*), parameter :: file_config = 'mft_config.dat'
+      character(len=80) :: fmt
 
-    if (calc == 'mae') then
+      if (calc == 'mae') then
 
-      if (type == 'list' .or. type == 'path') then
-        open (unit=unit_mae_atom, file=dir//file_mae_atom, action='write')
-        write (unit_mae_atom, *) '@# i mae(meV)'
+         if (type == 'list' .or. type == 'path') then
+            open (unit=unit_mae_atom, file=dir//file_mae_atom, action='write')
+            write (unit_mae_atom, *) '@# i mae(meV)'
 
-        write (unit_mae_atom, *) '@# site mae s'
-        do ia_mft = 1, na_mft
-            write (unit_mae_atom, '(2(a,1X))') int2str(ia(ia_mft)), &
-              real2str(1000*REAL(mft_s_i(nconfig, ia_mft) - mft_s_i(1, ia_mft)))
-        end do
-
-        write (unit_mae_atom, *) '@# site mae p'
-        do ia_mft = 1, na_mft
-            write (unit_mae_atom, '(5(a,1X))') int2str(ia(ia_mft)), &
-              real2str(1000*REAL(mft_p_i(nconfig, ia_mft) - mft_p_i(1, ia_mft))), &
-              real2str(1000*REAL(mft_px_i(nconfig, ia_mft) - mft_px_i(1, ia_mft))), &
-              real2str(1000*REAL(mft_py_i(nconfig, ia_mft) - mft_py_i(1, ia_mft))), &
-              real2str(1000*REAL(mft_pz_i(nconfig, ia_mft) - mft_pz_i(1, ia_mft)))
-        end do
-        write (unit_mae_atom, *) '@# site mae d'
-        do ia_mft = 1, na_mft
-            write (unit_mae_atom, '(7(a,1X))') int2str(ia(ia_mft)), &
-              real2str(1000*REAL(mft_d_i(nconfig, ia_mft) - mft_d_i(1, ia_mft))), &
-              real2str(1000*REAL(mft_dxy_i(nconfig, ia_mft) - mft_dxy_i(1, ia_mft))), &
-              real2str(1000*REAL(mft_dyz_i(nconfig, ia_mft) - mft_dyz_i(1, ia_mft))), &
-              real2str(1000*REAL(mft_dzx_i(nconfig, ia_mft) - mft_dzx_i(1, ia_mft))), &
-              real2str(1000*REAL(mft_dx2y2_i(nconfig, ia_mft) - mft_dx2y2_i(1, ia_mft))), &
-              real2str(1000*REAL(mft_dz2r2_i(nconfig, ia_mft) - mft_dz2r2_i(1, ia_mft)))
-        end do
-
-        close (unit_mae_atom)
-
-        open (unit=unit_mae_angle, file=dir//file_mae_theta, action='write')
-        Emin = minval(mft_tot_i, dim=1)
-        imin = minloc(mft_tot_i, dim=1)
-        angle = 0.0_rp
-        mae = 0.0_rp
-        !mae=1000*(mft_tot_i(1)-Emin)
-        write (unit_mae_angle, *) '@# angle  MAE(meV)'
-        write (unit_mae_angle, *) '@# theta= ', real2str(mconfig_i(1, imin, 1)), ' phi= ', real2str(mconfig_i(1, imin, 2))
-        write (unit_mae_angle, *) '@# Emin= ', real2str(Emin)
-        write (unit_mae_angle, '(3(a,1X))') real2str(angle), real2str(mae)
-        do iconfig = 1, nconfig - 1
-            angle = angle + &
-                    sqrt((mconfig_i(1, iconfig + 1, 1) - mconfig_i(1, iconfig, 1))**2 &
-                        + (mconfig_i(1, iconfig + 1, 2) - mconfig_i(1, iconfig, 2))**2)
-            mae = 1000*(mft_tot_i(iconfig) - mft_tot_i(1))
-            !mae=1000*(mft_tot_i(iconfig)-Emin)
-            write (unit_mae_angle, '(3(a,1X))') real2str(angle), real2str(mae)
-        end do
-
-        if (na_mft == na) then
-            open (unit=unit_mae_xyz, file=dir//file_mae_xyz, action='write')
-            ! Number of atoms
-            write (unit_mae_xyz, '(a)') int2str(na)
-            ! Serie of key/value pairs
-            write (unit_mae_xyz, '(a)') 'Lattice="' &
-              //real2str(v(1, 1))//' ' &
-              //real2str(v(1, 2))//' ' &
-              //real2str(v(1, 3))//' ' &
-              //real2str(v(2, 1))//' ' &
-              //real2str(v(2, 2))//' ' &
-              //real2str(v(2, 3))//' ' &
-              //real2str(v(3, 1))//' ' &
-              //real2str(v(3, 2))//' ' &
-              //real2str(v(3, 3))//'" ' &
-              //'Properties=species:S:1:pos:R:3:kinetic_energy:R:1'
-            ! Atoms
-            do iatom = 1, na
-              write (unit_mae_xyz, '(a)') symbol(ia2ie(iatom))//' ' &
-                  //real2str(r(iatom, 1))//' ' &
-                  //real2str(r(iatom, 2))//' ' &
-                  //real2str(r(iatom, 3))//' ' &
-                  //real2str(1000*real(mft_s_i(nconfig, iatom) + mft_p_i(nconfig, iatom) + mft_d_i(nconfig, iatom) - &
-                                      (mft_s_i(1, iatom) + mft_p_i(1, iatom) + mft_d_i(1, iatom))))//' '
+            write (unit_mae_atom, *) '@# site mae s'
+            do ia_mft = 1, na_mft
+               write (unit_mae_atom, '(2(a,1X))') int2str(ia(ia_mft)), &
+                  real2str(1000*REAL(mft_s_i(nconfig, ia_mft) - mft_s_i(1, ia_mft)))
             end do
-            close (unit_mae_xyz)
-        end if
-      elseif (type == 'mesh') then
-        open (unit=unit_mae_angle, file=dir//file_mae_theta, action='write')
-        Emin = minval(mft_tot_i, dim=1)
-        imin = minloc(mft_tot_i, dim=1)
-        write (unit_mae_angle, *) '@# theta  phi  Energy(eV)'
-        write (unit_mae_angle, *) '@# theta= ', real2str(mconfig_i(1, imin, 1)), ' phi= ', real2str(mconfig_i(1, imin, 2))
-        write (unit_mae_angle, *) '@# Emin= ', real2str(Emin)
-        do iconfig = 1, nconfig
-            theta = mconfig_i(1, iconfig, 1)
-            phi = mconfig_i(1, iconfig, 2)
-            !mae=1000*(mft_tot_i(iconfig)-mft_tot_i(1))
-            mae = 1000*(mft_tot_i(iconfig) - Emin)
-            write (unit_mae_angle, '(3(a,1X))') real2str(theta), real2str(phi), real2str(mae)
-        end do
+
+            write (unit_mae_atom, *) '@# site mae p'
+            do ia_mft = 1, na_mft
+               write (unit_mae_atom, '(5(a,1X))') int2str(ia(ia_mft)), &
+                  real2str(1000*REAL(mft_p_i(nconfig, ia_mft) - mft_p_i(1, ia_mft))), &
+                  real2str(1000*REAL(mft_px_i(nconfig, ia_mft) - mft_px_i(1, ia_mft))), &
+                  real2str(1000*REAL(mft_py_i(nconfig, ia_mft) - mft_py_i(1, ia_mft))), &
+                  real2str(1000*REAL(mft_pz_i(nconfig, ia_mft) - mft_pz_i(1, ia_mft)))
+            end do
+            write (unit_mae_atom, *) '@# site mae d'
+            do ia_mft = 1, na_mft
+               write (unit_mae_atom, '(7(a,1X))') int2str(ia(ia_mft)), &
+                  real2str(1000*REAL(mft_d_i(nconfig, ia_mft) - mft_d_i(1, ia_mft))), &
+                  real2str(1000*REAL(mft_dxy_i(nconfig, ia_mft) - mft_dxy_i(1, ia_mft))), &
+                  real2str(1000*REAL(mft_dyz_i(nconfig, ia_mft) - mft_dyz_i(1, ia_mft))), &
+                  real2str(1000*REAL(mft_dzx_i(nconfig, ia_mft) - mft_dzx_i(1, ia_mft))), &
+                  real2str(1000*REAL(mft_dx2y2_i(nconfig, ia_mft) - mft_dx2y2_i(1, ia_mft))), &
+                  real2str(1000*REAL(mft_dz2r2_i(nconfig, ia_mft) - mft_dz2r2_i(1, ia_mft)))
+            end do
+
+            close (unit_mae_atom)
+
+            open (unit=unit_mae_angle, file=dir//file_mae_theta, action='write')
+            Emin = minval(mft_tot_i, dim=1)
+            imin = minloc(mft_tot_i, dim=1)
+            angle = 0.0_rp
+            mae = 0.0_rp
+            !mae=1000*(mft_tot_i(1)-Emin)
+            write (unit_mae_angle, *) '@# angle  MAE(meV)'
+            write (unit_mae_angle, *) '@# theta= ', real2str(mconfig_i(1, imin, 1)), ' phi= ', real2str(mconfig_i(1, imin, 2))
+            write (unit_mae_angle, *) '@# Emin= ', real2str(Emin)
+            write (unit_mae_angle, '(3(a,1X))') real2str(angle), real2str(mae)
+            do iconfig = 1, nconfig - 1
+               angle = angle + &
+                       sqrt((mconfig_i(1, iconfig + 1, 1) - mconfig_i(1, iconfig, 1))**2 &
+                            + (mconfig_i(1, iconfig + 1, 2) - mconfig_i(1, iconfig, 2))**2)
+               mae = 1000*(mft_tot_i(iconfig) - mft_tot_i(1))
+               !mae=1000*(mft_tot_i(iconfig)-Emin)
+               write (unit_mae_angle, '(3(a,1X))') real2str(angle), real2str(mae)
+            end do
+
+            if (na_mft == na) then
+               open (unit=unit_mae_xyz, file=dir//file_mae_xyz, action='write')
+               ! Number of atoms
+               write (unit_mae_xyz, '(a)') int2str(na)
+               ! Serie of key/value pairs
+               write (unit_mae_xyz, '(a)') 'Lattice="' &
+                  //real2str(v(1, 1))//' ' &
+                  //real2str(v(1, 2))//' ' &
+                  //real2str(v(1, 3))//' ' &
+                  //real2str(v(2, 1))//' ' &
+                  //real2str(v(2, 2))//' ' &
+                  //real2str(v(2, 3))//' ' &
+                  //real2str(v(3, 1))//' ' &
+                  //real2str(v(3, 2))//' ' &
+                  //real2str(v(3, 3))//'" ' &
+                  //'Properties=species:S:1:pos:R:3:kinetic_energy:R:1'
+               ! Atoms
+               do iatom = 1, na
+                  write (unit_mae_xyz, '(a)') symbol(ia2ie(iatom))//' ' &
+                     //real2str(r(iatom, 1))//' ' &
+                     //real2str(r(iatom, 2))//' ' &
+                     //real2str(r(iatom, 3))//' ' &
+                     //real2str(1000*real(mft_s_i(nconfig, iatom) + mft_p_i(nconfig, iatom) + mft_d_i(nconfig, iatom) - &
+                                          (mft_s_i(1, iatom) + mft_p_i(1, iatom) + mft_d_i(1, iatom))))//' '
+               end do
+               close (unit_mae_xyz)
+            end if
+         elseif (type == 'mesh') then
+            open (unit=unit_mae_angle, file=dir//file_mae_theta, action='write')
+            Emin = minval(mft_tot_i, dim=1)
+            imin = minloc(mft_tot_i, dim=1)
+            write (unit_mae_angle, *) '@# theta  phi  Energy(eV)'
+            write (unit_mae_angle, *) '@# theta= ', real2str(mconfig_i(1, imin, 1)), ' phi= ', real2str(mconfig_i(1, imin, 2))
+            write (unit_mae_angle, *) '@# Emin= ', real2str(Emin)
+            do iconfig = 1, nconfig
+               theta = mconfig_i(1, iconfig, 1)
+               phi = mconfig_i(1, iconfig, 2)
+               !mae=1000*(mft_tot_i(iconfig)-mft_tot_i(1))
+               mae = 1000*(mft_tot_i(iconfig) - Emin)
+               write (unit_mae_angle, '(3(a,1X))') real2str(theta), real2str(phi), real2str(mae)
+            end do
+         end if
+
+      elseif (calc == 'mconfig') then
+         open (unit=unit_config, file=dir//file_config, action='write')
+         write (unit_config, *) '@# config  Energy(eV)'
+         do iconfig = 1, nconfig
+            write (unit_config, '(3(a,1X))') int2str(iconfig), real2str(mft_tot_i(iconfig))
+         end do
+
       end if
 
-    elseif (calc == 'mconfig') then
-        open (unit=unit_config, file=dir//file_config, action='write')
-        write (unit_config, *) '@# config  Energy(eV)'
-        do iconfig = 1, nconfig
-          write (unit_config, '(3(a,1X))') int2str(iconfig), real2str(mft_tot_i(iconfig))
-        end do
-
-    end if
-
-  end subroutine build_mft
+   end subroutine build_mft
 end program pmft

@@ -44,7 +44,7 @@ program linear_response
    integer, parameter :: unit_LR_in = 13
    integer, parameter :: unit_band_out = 14
    integer, parameter :: unit_log_out = 15
-   integer :: iostatus, nx,ia,na, ih_min,ih_max,ih, nh, ns, nsl, no_max, n_band,na_band
+   integer :: iostatus, nx, ia, na, ih_min, ih_max, ih, nh, ns, nsl, no_max, n_band, na_band
    logical :: isopen, close_file
    character(len=*), parameter :: dir = 'band/'
    character(len=*), parameter :: file_LR_in = 'in_LR.txt'
@@ -57,7 +57,7 @@ program linear_response
    character(len=4) :: type, type_case
    character(len=80) :: line
    character(len=20) :: proj
-   integer, dimension(:), allocatable :: ih_band,ia_band, iband2io
+   integer, dimension(:), allocatable :: ih_band, ia_band, iband2io
    real(rp), dimension(:, :, :), allocatable :: en_k
    real(rp), dimension(:), allocatable :: w
    real(rp), dimension(:, :), allocatable :: x
@@ -72,7 +72,7 @@ program linear_response
    namelist /mesh/ type
    namelist /mesh_out/ type, nx, x_coord, x, w
    namelist /hamiltonian_tb/ nh, ns
-   namelist /LR/ proj,Eref, E_min,E_max, ih_min,ih_max, na_band, ia_band
+   namelist /LR/ proj, Eref, E_min, E_max, ih_min, ih_max, na_band, ia_band
    namelist /band_out/ en_k, iband2io, w_band_spin, w_band_orb, band_velocity
 
    ! inquire(unit=unit_energy_in,opened=isopen)
@@ -94,7 +94,7 @@ program linear_response
    open (unit_log_out, file=dir//file_log_out, action='read', iostat=iostatus, status='old')
 
    read (unit_log_out, nml=lattice, iostat=iostatus)
-   rewind(unit_log_out)
+   rewind (unit_log_out)
    read (unit_log_out, nml=atom, iostat=iostatus)
    close (unit_log_out)
    ! read k mesh in (test type of mesh)
@@ -137,19 +137,19 @@ program linear_response
    select case (ns)
    case (1)
       nsl = 1
-    write (*, *) 'ns=1 not suited to linear-response it should be equal to 4 (non-collinear)'
-      stop   
+      write (*, *) 'ns=1 not suited to linear-response it should be equal to 4 (non-collinear)'
+      stop
    case (2)
       nsl = 2
-     write (*, *) 'ns=2 not suited to linear-response it should be equal to 4 (non-collinear)'
-      stop    
+      write (*, *) 'ns=2 not suited to linear-response it should be equal to 4 (non-collinear)'
+      stop
    case (4)
       nsl = 1
       write (*, *) 'ns=4 is suited to linear-response'
    end select
-   
-   E_min=-1.0_rp
-   E_max=1.0_rp
+
+   E_min = -1.0_rp
+   E_max = 1.0_rp
 
    na_band = 0
    allocate (ia_band(0))
@@ -158,37 +158,37 @@ program linear_response
    allocate (ia_band(na_band))
    rewind (unit_LR_in)
    read (unit_LR_in, nml=LR, iostat=iostatus)
-       if(na_band > 0.and.na_band.ne.na) then
-    rewind(unit_LR_in)
-    read(unit_LR_in,nml=LR,iostat=iostatus)
-    rewind(unit_LR_in)
-    elseif(na_band==na) then
-      do ia=1,na
-      ia_band(ia)=ia
+   if (na_band > 0 .and. na_band .ne. na) then
+      rewind (unit_LR_in)
+      read (unit_LR_in, nml=LR, iostat=iostatus)
+      rewind (unit_LR_in)
+   elseif (na_band == na) then
+      do ia = 1, na
+         ia_band(ia) = ia
       end do
-    end if
+   end if
    read (unit_LR_in, nml=LR, iostat=iostatus)
-   if(TRIM(proj).ne.'linear-response') then ! 
-     stop
-   endif
-   ih_min=0
-   ih_max=0
-   rewind(unit_LR_in)
-    read(unit_LR_in,nml=LR,iostat=iostatus)
-    if(ih_min/=0.and.ih_max/=0) then
-    allocate(ih_band(ih_max-ih_min+1))
-       do ih=1,ih_max-ih_min+1
-         ih_band(ih)=ih+ih_min-1
-        end do
-    elseif(ih_min==0.and.ih_max==0) then
-       ih_min=1
-       ih_max=nh
-     allocate(ih_band(ih_max-ih_min+1))
-       do ih=1,ih_max-ih_min+1
-         ih_band(ih)=ih
-        end do
-    endif 
-    n_band=ih_max-ih_min+1
+   if (TRIM(proj) .ne. 'linear-response') then !
+      stop
+   end if
+   ih_min = 0
+   ih_max = 0
+   rewind (unit_LR_in)
+   read (unit_LR_in, nml=LR, iostat=iostatus)
+   if (ih_min /= 0 .and. ih_max /= 0) then
+      allocate (ih_band(ih_max - ih_min + 1))
+      do ih = 1, ih_max - ih_min + 1
+         ih_band(ih) = ih + ih_min - 1
+      end do
+   elseif (ih_min == 0 .and. ih_max == 0) then
+      ih_min = 1
+      ih_max = nh
+      allocate (ih_band(ih_max - ih_min + 1))
+      do ih = 1, ih_max - ih_min + 1
+         ih_band(ih) = ih
+      end do
+   end if
+   n_band = ih_max - ih_min + 1
    close (unit_LR_in)
 
    ! read eigenvalues and different types of projections: sites or spin or orbital
@@ -196,47 +196,47 @@ program linear_response
    read (unit_band_out, nml=band_out, iostat=iostatus)
 
    rewind (unit_band_out)
-      allocate (w_band_spin(0, 0, 0, 0))
-      allocate (w_band_orb(0, 0, 0, 0))
-      read (unit_band_out, nml=band_out, iostat=iostatus)
-      deallocate (w_band_spin)
-      deallocate (w_band_orb)
-      rewind (unit_band_out)
-      allocate (w_band_spin(n_band, nx, 0:na_band, 4))
-      allocate (w_band_orb(n_band, nx, 0:na_band, 4))
-      allocate (band_velocity(n_band, nx, nsl, 4))
-      read (unit_band_out, nml=band_out, iostat=iostatus)
+   allocate (w_band_spin(0, 0, 0, 0))
+   allocate (w_band_orb(0, 0, 0, 0))
+   read (unit_band_out, nml=band_out, iostat=iostatus)
+   deallocate (w_band_spin)
+   deallocate (w_band_orb)
+   rewind (unit_band_out)
+   allocate (w_band_spin(n_band, nx, 0:na_band, 4))
+   allocate (w_band_orb(n_band, nx, 0:na_band, 4))
+   allocate (band_velocity(n_band, nx, nsl, 4))
+   read (unit_band_out, nml=band_out, iostat=iostatus)
    close (unit_band_out)
    ! set the Fermi energy to zero
    call get_fermi_scf(en_f)
    en_k = en_k - en_f
 
-   call build_linear_response(x, w, en_k, Eref, E_min,E_max, w_band_spin, w_band_orb, band_velocity,&
-                               ih_band, n_band,na_band, nh,  nx, nsl)
+   call build_linear_response(x, w, en_k, Eref, E_min, E_max, w_band_spin, w_band_orb, band_velocity, &
+                              ih_band, n_band, na_band, nh, nx, nsl)
 contains
 
-    subroutine build_linear_response(x, w, en_k, Eref, E_min, E_max,w_band_spin,w_band_orb, band_velocity,&
-                                    ih_band, n_band,na_band, nh,  nx, nsl)
+   subroutine build_linear_response(x, w, en_k, Eref, E_min, E_max, w_band_spin, w_band_orb, band_velocity, &
+                                    ih_band, n_band, na_band, nh, nx, nsl)
       use precision_mod
       use string_mod
       implicit none
       integer, intent(in) :: n_band, na_band, nsl, nh, nx
       integer, intent(in) :: ih_band(n_band)
       real(rp), intent(in) :: x(nx, 3), w(nx), en_k(nh, nx, nsl)
-      real(rp), intent(in) :: w_band_spin(n_band, nx, 0:na_band, 4),w_band_orb(n_band, nx, 0:na_band, 4)
+      real(rp), intent(in) :: w_band_spin(n_band, nx, 0:na_band, 4), w_band_orb(n_band, nx, 0:na_band, 4)
       real(rp), intent(in) :: band_velocity(n_band, nx, nsl, 4)
       real(rp), intent(in) :: Eref, E_min, E_max
       logical :: isopen
-      integer :: ih, ix, ie, ir, ia_band,ne_max
+      integer :: ih, ix, ie, ir, ia_band, ne_max
       logical :: close_file
-      integer, parameter :: unit_spin_E = 10, unit_orb_E= 11, unit_spin_site = 12, unit_orb_site= 13
+      integer, parameter :: unit_spin_E = 10, unit_orb_E = 11, unit_spin_site = 12, unit_orb_site = 13
       real(rp) :: energ
-      real(rp), dimension(3) :: LR_spin,LR_orb
+      real(rp), dimension(3) :: LR_spin, LR_orb
       character(len=*), parameter :: dir = 'band/'
       character(len=*), parameter :: file_spin_E = 'LR_spin_E.dat'
-      character(len=*), parameter :: file_orb_E  = 'LR_orb_E.dat'
+      character(len=*), parameter :: file_orb_E = 'LR_orb_E.dat'
       character(len=*), parameter :: file_spin_site = 'LR_spin_site.dat'
-      character(len=*), parameter :: file_orb_site  = 'LR_orb_site.dat'
+      character(len=*), parameter :: file_orb_site = 'LR_orb_site.dat'
       character(len=80) :: fmt
 
       inquire (unit=unit_spin_E, opened=isopen)
@@ -256,55 +256,55 @@ contains
          open (unit=unit_orb_site, file=dir//file_orb_site, action='write')
       end if
 
-      write(*,*) 'n_band= ',n_band
+      write (*, *) 'n_band= ', n_band
       write (unit_spin_E, *) '@# spin linear response vs energy'
-      write (unit_orb_E, *)  '@# orbit linear response vs energy'
+      write (unit_orb_E, *) '@# orbit linear response vs energy'
       write (unit_spin_site, *) '@# spin linear response vs site'
-      write (unit_orb_site,*)  '@# orbit linear response vs site'
+      write (unit_orb_site, *) '@# orbit linear response vs site'
 
       fmt = trim('(4f12.7)')
-      ne_max=151
-      do ie=1,ne_max
-         energ=E_min+(E_max-E_min)*(ie-1)/(ne_max-1)
-         LR_spin=0.0_rp
-         LR_orb=0.0_rp
+      ne_max = 151
+      do ie = 1, ne_max
+         energ = E_min + (E_max - E_min)*(ie - 1)/(ne_max - 1)
+         LR_spin = 0.0_rp
+         LR_orb = 0.0_rp
          do ix = 1, nx
             do ih = 1, n_band
-              do ir=1,3
-                 LR_spin(ir)=LR_spin(ir) +w(ix)* w_band_spin(ih, ix, 0, ir+1)*band_velocity(ih, ix, 1, 2)&
-                                          *delta_function(en_k(ih_band(ih), ix, 1) - energ)
-                 LR_orb(ir)=LR_orb(ir) +w(ix)* w_band_orb(ih, ix, 0, ir+1)*band_velocity(ih, ix, 1, 2)&
-                                          *delta_function(en_k(ih_band(ih), ix, 1) - energ)
-              end do
+               do ir = 1, 3
+                  LR_spin(ir) = LR_spin(ir) + w(ix)*w_band_spin(ih, ix, 0, ir + 1)*band_velocity(ih, ix, 1, 2) &
+                                *delta_function(en_k(ih_band(ih), ix, 1) - energ)
+                  LR_orb(ir) = LR_orb(ir) + w(ix)*w_band_orb(ih, ix, 0, ir + 1)*band_velocity(ih, ix, 1, 2) &
+                               *delta_function(en_k(ih_band(ih), ix, 1) - energ)
+               end do
             end do
          end do
-         write (unit_spin_E, fmt) energ,LR_spin(:)
-         write (unit_orb_E, fmt)  energ,LR_orb(:)
+         write (unit_spin_E, fmt) energ, LR_spin(:)
+         write (unit_orb_E, fmt) energ, LR_orb(:)
       end do
 
-     close (unit_spin_E)
-     close (unit_orb_E)
+      close (unit_spin_E)
+      close (unit_orb_E)
 
-     fmt = trim('(I2,3f12.7)')
+      fmt = trim('(I2,3f12.7)')
       do ia_band = 1, na_band
-         LR_spin=0.0_rp
-         LR_orb=0.0_rp
+         LR_spin = 0.0_rp
+         LR_orb = 0.0_rp
          do ix = 1, nx
             do ih = 1, n_band
-              do ir=1,3
-                 LR_spin(ir)=LR_spin(ir) +w(ix)* w_band_spin(ih, ix, ia_band, ir+1)*band_velocity(ih, ix, 1, 2)&
-                                          *delta_function(en_k(ih_band(ih), ix, 1) - Eref)
-                 LR_orb(ir)=LR_orb(ir) +w(ix)* w_band_orb(ih, ix, ia_band, ir+1)*band_velocity(ih, ix, 1, 2)&
-                                          *delta_function(en_k(ih_band(ih), ix, 1) - Eref)
-              end do
+               do ir = 1, 3
+                  LR_spin(ir) = LR_spin(ir) + w(ix)*w_band_spin(ih, ix, ia_band, ir + 1)*band_velocity(ih, ix, 1, 2) &
+                                *delta_function(en_k(ih_band(ih), ix, 1) - Eref)
+                  LR_orb(ir) = LR_orb(ir) + w(ix)*w_band_orb(ih, ix, ia_band, ir + 1)*band_velocity(ih, ix, 1, 2) &
+                               *delta_function(en_k(ih_band(ih), ix, 1) - Eref)
+               end do
             end do
          end do
-         write (unit_spin_site, fmt) ia_band,LR_spin(:)
-         write (unit_orb_site, fmt)  ia_band,LR_orb(:)
-      end do     
+         write (unit_spin_site, fmt) ia_band, LR_spin(:)
+         write (unit_orb_site, fmt) ia_band, LR_orb(:)
+      end do
 
-     close (unit_spin_site)
-     close (unit_orb_site)
+      close (unit_spin_site)
+      close (unit_orb_site)
    end subroutine build_linear_response
 
    subroutine get_fermi_scf(en_f)
@@ -324,15 +324,15 @@ contains
 
    real(rp) function delta_function(x)
       use precision_mod
-    !
-    ! --> 'fd': derivative of the Fermi-Dirac smearing. 0.5/(1.0+cosh(x))
-    !
+      !
+      ! --> 'fd': derivative of the Fermi-Dirac smearing. 0.5/(1.0+cosh(x))
+      !
       real(rp), intent(in) :: x
-    ! output: the value of the function
-    ! input: the point where to compute the function
-    ! local variable
+      ! output: the value of the function
+      ! input: the point where to compute the function
+      ! local variable
       real(rp), parameter :: smearing = 0.005_rp  !smearing in eV
-    ! Fermi-Dirac smearing
+      ! Fermi-Dirac smearing
       if (abs(x) <= 36.0_rp) then
          delta_function = 1.0_rp/(smearing*(2.0_rp + exp(-x/smearing) + exp(+x/smearing)))
          ! in order to avoid problems for large values of x in the e

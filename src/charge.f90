@@ -38,8 +38,8 @@ module charge_mod
    use, intrinsic :: iso_fortran_env, only: error_unit, output_unit
    use atom_mod
    use element_mod
-   use math_mod, only: i_unit, rad2deg, deg2rad,pi, sqrt_three, &
-                      cart2sph, sph2cart, nm2rho, rho2nm, rotate_rho
+   use math_mod, only: i_unit, rad2deg, deg2rad, pi, sqrt_three, &
+                       cart2sph, sph2cart, nm2rho, rho2nm, rotate_rho
    use precision_mod, only: rp
    use string_mod, only: sl, cmplx2str, TBKOSTER_flush, int2str, log2str, lower, real2str
    implicit none
@@ -499,67 +499,67 @@ contains
       end select
    end subroutine calculate_net_charge_out
 
-   subroutine set_angle_charge_ncol(obj,mconfig)
-  ! INPUT
-   class(charge), intent(inout) :: obj
-   real(rp), dimension(obj%a%na,2), intent(in) :: mconfig
-   !Local variable
-      integer :: ia,io1,io2,is,l
-      real(rp) :: mz,n
-      real(rp), dimension(3) :: m_sph,m_cart
-      complex(rp),dimension(2,2) ::rho
+   subroutine set_angle_charge_ncol(obj, mconfig)
+      ! INPUT
+      class(charge), intent(inout) :: obj
+      real(rp), dimension(obj%a%na, 2), intent(in) :: mconfig
+      !Local variable
+      integer :: ia, io1, io2, is, l
+      real(rp) :: mz, n
+      real(rp), dimension(3) :: m_sph, m_cart
+      complex(rp), dimension(2, 2) ::rho
       real(rp), dimension(obj%a%na, 3, 0:3) :: q_mul
       complex(rp), dimension(obj%a%na, obj%e%no_max, obj%e%no_max, 4):: rho_net
       !obj%q_mul_in=0.0_rp
       !obj%rho_net_in=0.0
-      call obj%read_charge_col_to_ncol() 
-      q_mul=obj%q_mul_in 
-      rho_net=obj%rho_net_in 
+      call obj%read_charge_col_to_ncol()
+      q_mul = obj%q_mul_in
+      rho_net = obj%rho_net_in
 
-           do ia = 1, obj%a%na
-               do l = 1, 3
-                  n=0.0_rp
-                  mz=0.0_rp
-                     obj%q_mul_in(ia,l,0)=q_mul(ia,l,0)
-                     if(q_mul(ia,l,3)>0) then
-                     mz=q_mul(ia,l,3)
-                     m_sph(1:3)=(/mz,mconfig(ia,1),mconfig(ia,2)/)
-                     else
-                     mz=-q_mul(ia,l,3)
-                     m_sph(1:3)=(/mz,mconfig(ia,1)+pi,mconfig(ia,2)+pi/)
-                     endif
-                     
-                     m_cart=sph2cart(m_sph)
-                     obj%q_mul_in(ia,l,1:3)=m_cart
-               end do
-            end do
+      do ia = 1, obj%a%na
+         do l = 1, 3
+            n = 0.0_rp
+            mz = 0.0_rp
+            obj%q_mul_in(ia, l, 0) = q_mul(ia, l, 0)
+            if (q_mul(ia, l, 3) > 0) then
+               mz = q_mul(ia, l, 3)
+               m_sph(1:3) = (/mz, mconfig(ia, 1), mconfig(ia, 2)/)
+            else
+               mz = -q_mul(ia, l, 3)
+               m_sph(1:3) = (/mz, mconfig(ia, 1) + pi, mconfig(ia, 2) + pi/)
+            end if
 
-           do ia = 1, obj%a%na
-               do io1 = 1, obj%e%no_max
-                  do io2 = 1, obj%e%no_max
-                      rho(1, 1) = rho_net(ia, io1, io2, 1)
-                      rho(2, 2) = rho_net(ia, io1, io2, 2)
-                      rho(1, 2) = cmplx(0.0_rp, 0.0_rp, kind=rp)
-                      rho(2, 1) = cmplx(0.0_rp, 0.0_rp, kind=rp)
-                !      call rho2nm(rho, n, m_cart)
-                !      m_sph=cart2sph(m_cart)
-                !      if(real(rho(1, 1)-rho(2, 2))>0) then
-                !          m_sph(2)=angle(1)
-                !          m_sph(3)=angle(2)
-                !       else
-                !          m_sph(2)=angle(1)+pi
-                !          m_sph(3)=angle(2)+pi
-                !       endif
-                !      m_cart=sph2cart(m_sph)
-                !      call nm2rho(n,m_cart,rho)
-                      call rotate_rho(rho,mconfig(ia,:))
-                      obj%rho_net_in(ia, io1, io2, 1) = rho(1, 1)
-                      obj%rho_net_in(ia ,io1, io2, 2) = rho(2, 2)
-                      obj%rho_net_in(ia, io1, io2, 3) = rho(1, 2)
-                      obj%rho_net_in(ia, io1, io2, 4) = rho(2, 1)
-                  end do
-               end do
+            m_cart = sph2cart(m_sph)
+            obj%q_mul_in(ia, l, 1:3) = m_cart
+         end do
+      end do
+
+      do ia = 1, obj%a%na
+         do io1 = 1, obj%e%no_max
+            do io2 = 1, obj%e%no_max
+               rho(1, 1) = rho_net(ia, io1, io2, 1)
+               rho(2, 2) = rho_net(ia, io1, io2, 2)
+               rho(1, 2) = cmplx(0.0_rp, 0.0_rp, kind=rp)
+               rho(2, 1) = cmplx(0.0_rp, 0.0_rp, kind=rp)
+               !      call rho2nm(rho, n, m_cart)
+               !      m_sph=cart2sph(m_cart)
+               !      if(real(rho(1, 1)-rho(2, 2))>0) then
+               !          m_sph(2)=angle(1)
+               !          m_sph(3)=angle(2)
+               !       else
+               !          m_sph(2)=angle(1)+pi
+               !          m_sph(3)=angle(2)+pi
+               !       endif
+               !      m_cart=sph2cart(m_sph)
+               !      call nm2rho(n,m_cart,rho)
+               call rotate_rho(rho, mconfig(ia, :))
+               obj%rho_net_in(ia, io1, io2, 1) = rho(1, 1)
+               obj%rho_net_in(ia, io1, io2, 2) = rho(2, 2)
+               obj%rho_net_in(ia, io1, io2, 3) = rho(1, 2)
+               obj%rho_net_in(ia, io1, io2, 4) = rho(2, 1)
             end do
+         end do
+      end do
 
    end subroutine set_angle_charge_ncol
 
@@ -609,7 +609,7 @@ contains
 
       obj%om = cmplx(0.0_rp, 0.0_rp, kind=rp)
    end subroutine nullify_orbital_moment
-   
+
    !> Read object in text format from file (default: 'in_charge.txt')
    subroutine read_txt(obj, file)
       class(charge), intent(inout) :: obj
@@ -651,20 +651,19 @@ contains
       !deallocate(file_rt)
    end subroutine read_txt
 
-  !> Read collinear charge and transform into non-collinear in text format from file (default: 'in_charge.txt')
+   !> Read collinear charge and transform into non-collinear in text format from file (default: 'in_charge.txt')
    subroutine read_charge_col_to_ncol(obj)
       class(charge), intent(inout) :: obj
       character(len=:), allocatable :: file_rt
       integer :: iostatus
       logical :: isopen
-      integer :: ia,io1,io2,is,l
+      integer :: ia, io1, io2, is, l
       real(rp) :: n, mz
       ! Namelist variables
       real(rp), dimension(obj%a%na, 3, 0:1) :: q_mul
       complex(rp), dimension(obj%a%na, obj%e%no_max, obj%e%no_max, 2):: rho_net
       ! Namelist
       namelist /charge/ q_mul, rho_net
-
 
       file_rt = 'out_charge.txt'
 
@@ -683,31 +682,31 @@ contains
       read (10, nml=charge)
 
       obj%q_mul_in = 0.0_rp
-      obj%rho_net_in = cmplx(0.0_rp,0.0_rp,kind=rp)
+      obj%rho_net_in = cmplx(0.0_rp, 0.0_rp, kind=rp)
 
-           do ia = 1, obj%a%na
-               do l = 1, 3
-                  n=0.0_rp
-                  mz=0.0_rp
-                  do is = 0, 1
-                     n=n+q_mul(ia,l,is)
-                     mz=mz+(1-2*is)*q_mul(ia,l,is)
-                  end do
-                  obj%q_mul_in(ia, l, 0)=n
-                  obj%q_mul_in(ia, l, 3)=mz  ! mx and my are zero.
+      do ia = 1, obj%a%na
+         do l = 1, 3
+            n = 0.0_rp
+            mz = 0.0_rp
+            do is = 0, 1
+               n = n + q_mul(ia, l, is)
+               mz = mz + (1 - 2*is)*q_mul(ia, l, is)
+            end do
+            obj%q_mul_in(ia, l, 0) = n
+            obj%q_mul_in(ia, l, 3) = mz  ! mx and my are zero.
+         end do
+      end do
+
+      do ia = 1, obj%a%na
+         do io1 = 1, obj%e%no_max
+            do io2 = 1, obj%e%no_max
+               do is = 1, 2 ! is=3 and 4 are zero for collinear spin.
+                  obj%rho_net_in(ia, io1, io2, is) = rho_net(ia, io1, io2, is)
                end do
             end do
+         end do
+      end do
 
-           do ia = 1, obj%a%na
-               do io1 = 1, obj%e%no_max
-                  do io2 = 1, obj%e%no_max
-                     do is = 1, 2 ! is=3 and 4 are zero for collinear spin. 
-                      obj%rho_net_in(ia, io1, io2, is)=rho_net(ia, io1, io2, is)
-                     end do
-                  end do
-               end do
-            end do
-      
       close (unit=10)
    end subroutine read_charge_col_to_ncol
 
@@ -969,7 +968,6 @@ contains
       real(rp), dimension(3) :: om_sph, om_sph_s, om_sph_p, om_sph_d
       real(rp), dimension(3) :: om_tot, v_sph
       real(rp) :: om_r_tot
-
 
       if (present(unit)) then
          unit_rt = unit
@@ -1479,14 +1477,14 @@ contains
          do ia = 1, obj%a%na
             ie = obj%a%ia2ie(ia)
             do ir = 1, 3  ! x: ir=1 , y: i=2, z: ir=3
-                select case (ir)
-                    case (1)
-                        LMAT = L_x
-                    case (2)
-                        LMAT = L_y
-                    case (3)
-                        LMAT = L_z
-                end select
+               select case (ir)
+               case (1)
+                  LMAT = L_x
+               case (2)
+                  LMAT = L_y
+               case (3)
+                  LMAT = L_z
+               end select
                do io1 = 1, obj%e%no(ie)
                   l = obj%e%o2l(obj%e%o(ie, io1))
                   do kmat = 1, nh
@@ -1497,8 +1495,8 @@ contains
                         do io2 = 1, obj%e%no(ie)
                            jmat = iaos2ih(ia, io2, ispin)
                            obj%om(ia, ir, l) = obj%om(ia, ir, l) &
-                              + w*f_k(nn)*obj%a%g_s*conjg(v_k(1, imat, kmat))&
-                              *LMAT(obj%e%o(ie, io1), obj%e%o(ie, io2))*v_k(2, jmat, kmat)
+                                               + w*f_k(nn)*obj%a%g_s*conjg(v_k(1, imat, kmat)) &
+                                               *LMAT(obj%e%o(ie, io1), obj%e%o(ie, io2))*v_k(2, jmat, kmat)
                         end do
                      end do
 
