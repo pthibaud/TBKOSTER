@@ -10,9 +10,9 @@ program main
 	print *
 	call test_dir2cart()
 	print *
-	call test_read_namelist()
+	call test_read_txt()
 	print *
-	call test_write_namelist()
+	call test_write_txt()
 	print *
 end program main
 
@@ -27,7 +27,7 @@ subroutine test_constructor()
 	print *, "obj = lattice(zeros2(3,3))"
 	print *, "obj%print()"
 	obj = lattice(zeros2(3,3))
-	call obj%write_namelist()
+	call obj%write_txt()
 end subroutine test_constructor
 
 subroutine test_accessors()
@@ -44,7 +44,7 @@ subroutine test_accessors()
 	print *, "obj%set_vector(zeros2(3,3))"
 	print *, "obj%print()"
 	!call obj%set_vector(zeros2(3,3))
-	call obj%write_namelist()
+	call obj%write_txt()
 
 	print *, "obj%get_vector() ="
 	v = obj%get_v()
@@ -87,7 +87,7 @@ subroutine test_construct_reciprocal()
 	print *, "obj2%print()"
 	obj1 = lattice(diag1((/1.0_rp,2.0_rp,3.0_rp/)))
 	obj2 = obj1%construct_reciprocal()
-	call obj2%write_namelist()
+	call obj2%write_txt()
 end subroutine test_construct_reciprocal
 
 subroutine test_dir2cart()
@@ -109,20 +109,20 @@ subroutine test_dir2cart()
 	print *, v(3,:)
 end subroutine test_dir2cart
 
-subroutine test_read_namelist()
+subroutine test_read_txt()
 	use lattice_mod
 	implicit none
 
 	type(lattice) :: obj
 
-	print *, "test_read_namelist()"
-	print *, "obj%read_namelist()"
+	print *, "test_read_txt()"
+	print *, "obj%read_txt()"
 	print *, "obj%print()"
-	call obj%read_namelist()
-	call obj%write_namelist()
-end subroutine test_read_namelist
+	call obj%read_txt()
+	call obj%write_txt()
+end subroutine test_read_txt
 
-subroutine test_write_namelist()
+subroutine test_write_txt()
 	use lattice_mod
 	use math_mod
 	use precision_mod
@@ -130,9 +130,9 @@ subroutine test_write_namelist()
 
 	type(lattice) :: obj
 
-	print *, "test_write_namelist()"
+	print *, "test_write_txt()"
 	print *, "obj = lattice(diag1((/1.0,2.0,3.0/)))"
-	print *, "obj%write_namelist()"
+	print *, "obj%write_txt()"
 	obj = lattice(diag1((/1.0_rp,2.0_rp,3.0_rp/)))
-	call obj%write_namelist()
-end subroutine test_write_namelist
+	call obj%write_txt()
+end subroutine test_write_txt
