@@ -1399,6 +1399,11 @@ contains
       integer :: ie
       character(len=1) :: first_c
 
+#if defined(DEBUG)
+      write (output_unit, *) "DEBUG == Entering element & read_txt"
+      call TBKOSTER_flush(output_unit)
+#endif
+
       if (present(file)) then
          file_rt = trim(file)
       else
@@ -1423,7 +1428,7 @@ contains
       deallocate (symbol)
       allocate (symbol(ne))
       rewind (10)
-      read (10, nml=element, iostat=iostatus)
+      read (unit=10, nml=element, iostat=iostatus, iomsg=msg)
       first_c = lower(trim(symbol(1)))
       if (first_c == 'j') then
          allocate (no(ne), o(ne, 0))
@@ -1525,6 +1530,10 @@ contains
       call obj%calculate_l_dot_s()
       close (unit=10)
       !deallocate(file_rt)
+#if defined(DEBUG)
+      write (output_unit, *) "DEBUG == Exiting element & read_txt"
+      call TBKOSTER_flush(output_unit)
+#endif
    end subroutine read_txt
 
    !> Symmetrize the on-site Coulomb potential

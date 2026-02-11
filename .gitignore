@@ -35,6 +35,7 @@
 # Directories where the build are located
 build
 linux*
+debug
 mac
 win
 bin
