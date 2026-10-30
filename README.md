@@ -1,5 +1,7 @@
 # TBKOSTER
 
+![TBKOSTER](https://mark.sylphx.com/api/v1/mark/hero.svg?text=TBKOSTER\&desc=Tight-Binding+Kernel+of+Objects+for+SpinTronics+Enhanced+Research\&theme=light)
+
 TBKOSTER is an open source software simulation package for the simulation of magnetic materials developed at the [French Alternative Energies and Atomic Energy Commission](http://www.cea.fr). TBKOSTER is designed to provide a community standard tool for ab initio simulations of magnetic materials with high performance and an easy-to-use interface.
 
 Using a variety of common simulation methods it can calculate the equilibrium and dynamic magnetic properties of a wide variety of magnetic materials and phenomena, including ferro-, ferri- and antiferro-magnets, nano objects, ultrafast spin dynamics, magnetic recording media, exchange bias, magnetic multilayer films and even complete devices.
@@ -65,8 +67,8 @@ TBKOSTER is designed to be highly flexible to deal with a wide variety of proble
 There are many ways to install TBKOSTER.
 The simplest way is to use Docker/Podman with the Dockerfile. 
 ```bash
-docker build -t TBKOSTER .
-docker run -it localhost/TBKOSTER:latest
+docker/podman build -t TBKOSTER .
+docker/podman run -it localhost/TBKOSTER:latest
 ```
 The second way is to install the necessary packages locally.
 The installation process relies heavily on [CMake](https://cmake.org). CMake is used to control the software compilation process using simple platform and compiler independent configuration files, and generate native makefiles and workspaces that can be used in the compiler environment of your choice.
